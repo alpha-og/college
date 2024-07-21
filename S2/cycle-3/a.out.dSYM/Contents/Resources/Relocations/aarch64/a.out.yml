@@ -1,0 +1,12 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     a.out
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _displayMatrix, symObjAddr: 0x0, symBinAddr: 0x1000035E0, symSize: 0xFC }
+  - { offsetInCU: 0x4D, offset: 0x4D, size: 0x8, addend: 0x0, symName: _displayMatrix, symObjAddr: 0x0, symBinAddr: 0x1000035E0, symSize: 0xFC }
+  - { offsetInCU: 0xC5, offset: 0xC5, size: 0x8, addend: 0x0, symName: _readMatrix, symObjAddr: 0xFC, symBinAddr: 0x1000036DC, symSize: 0xF4 }
+  - { offsetInCU: 0x13D, offset: 0x13D, size: 0x8, addend: 0x0, symName: _add, symObjAddr: 0x1F0, symBinAddr: 0x1000037D0, symSize: 0x178 }
+  - { offsetInCU: 0x209, offset: 0x209, size: 0x8, addend: 0x0, symName: _multiply, symObjAddr: 0x368, symBinAddr: 0x100003948, symSize: 0x1C0 }
+  - { offsetInCU: 0x2F1, offset: 0x2F1, size: 0x8, addend: 0x0, symName: _transpose, symObjAddr: 0x528, symBinAddr: 0x100003B08, symSize: 0xF8 }
+  - { offsetInCU: 0x377, offset: 0x377, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x620, symBinAddr: 0x100003C00, symSize: 0x220 }
+...
