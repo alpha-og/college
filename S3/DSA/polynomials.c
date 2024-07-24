@@ -58,14 +58,16 @@ int main() {
     // scanf("%d", &current_polynomial->variable_count);
     printf("Degree of polynomial: ");
     scanf("%d", &current_polynomial->degree);
-    current_polynomial->terms = (struct Term *)malloc(
-        sizeof(struct Term) * current_polynomial->term_count);
+    struct Term *terms = (struct Term *)malloc(sizeof(struct Term) *
+                                               current_polynomial->term_count);
+    if (terms == NULL) {
+      fprintf(stderr, "Error: Memory allocation failed!\n");
+    }
+    current_polynomial->terms = terms;
     for (int j = 0; j < current_polynomial->term_count; j++) {
       struct Term *current_term = &current_polynomial->terms[j];
-      printf("Exponent of Term %d: ", j + 1);
-      scanf("%d", &current_term->exponent);
-      printf("Coefficient of Term %d: ", j + 1);
-      scanf("%d", &current_term->coefficient);
+      printf("Term %d: ", j);
+      scanf("%dx^%d", &current_term->coefficient, &current_term->exponent);
     }
   }
   for (int i = 0; i < polynomial_count; i++) {
@@ -86,6 +88,6 @@ int main() {
       continue;
     }
 
-    printf("%dx^%d", current_term->coefficient, current_term->exponent);
+    printf("%dx^%d + ", current_term->coefficient, current_term->exponent);
   }
 }
