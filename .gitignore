@@ -1,5 +1,6 @@
 **/.supermaven
 
 **/*.out
+**/*.class
 
 .DS_Store
