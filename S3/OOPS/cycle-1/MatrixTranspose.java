@@ -1,6 +1,8 @@
 /* 
 * Experiment-06
 * To implement a Java program to multiply two given matrices.
+* Experiment-07
+* To implement a Java program to display the transpose of a given matrix.
 * Athul Anoop
 * 
 */
@@ -56,9 +58,20 @@ class Matrix {
 		return result;
 	}
 
+	public Matrix transpose(){
+		Matrix result = new Matrix(this.columns, this.rows);
+
+		for  (int i = 0; i < result.rows; i++){
+			for (int j = 0; j < result.columns; j++){
+				result.data[i][j] = this.data[j][i];
+			}
+		}
+		return result;
+	}
+
 };
 
-public class MatrixMultiplication {
+public class MatrixTranspose {
 	public static int[] readShape(){
 		Scanner scanner = new Scanner(System.in);
 		System.out.print("\n\n---- Matrix ----\n");
@@ -79,13 +92,8 @@ public class MatrixMultiplication {
 		matrixA.readElements();
 		matrixA.display();
 
-		shape = readShape();
-		Matrix matrixB = new Matrix(shape[0], shape[1]);
-		matrixB.readElements();
-		matrixB.display();
-
-		Matrix result = matrixA.multiply(matrixB);
+		Matrix result = matrixA.transpose();
 		result.display();
 
 	}
-} 
+}
