@@ -1,3 +1,10 @@
+/* 
+* Experiment-06
+* To implement a Java program to multiply two given matrices.
+* Athul Anoop
+* 
+*/
+
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -14,7 +21,7 @@ class Matrix {
 
 	public void readElements(){
 		Scanner scanner = new Scanner(System.in);
-		System.out.println("Matrix Elements: ");
+		System.out.println("Elements: ");
 		for (int i = 0; i < this.rows;i++){
 			String elements[] = scanner.nextLine().split(",");
 			for (int j = 0; j< this.columns; j++){
@@ -24,7 +31,8 @@ class Matrix {
 	}
 
 	public void display(){
-		System.out.print("[ ");
+		System.out.println("\n---- Matrix ----");
+		System.out.print("[\n");
 		for (int i=0; i<rows;i++){
 			System.out.print("[ ");
 			for (int j = 0; j< columns; j++){
@@ -37,10 +45,10 @@ class Matrix {
 
 
 	public Matrix multiply(Matrix other){
-		if (this.columns != other.rows) throw new Error("Operand dimensions do not satisfy requirements for multiplication");
+		if (this.columns != other.rows) throw new Error("Operands dimensions do not satisfy requirements for multiplication");
 		Matrix result = new Matrix(this.rows, other.columns);
-		for (int i=0; i<rows;i++){
-			for (int j = 0; j< columns; j++){
+		for (int i=0; i<result.rows;i++){
+			for (int j = 0; j< result.columns; j++){
 				for (int k = 0; k < this.columns; k++){
 					result.data[i][j] += this.data[i][k]*other.data[k][j];
 				}
@@ -52,10 +60,10 @@ class Matrix {
 };
 
 public class MatrixMultiplication {
-
 	public static int[] readShape(){
 		Scanner scanner = new Scanner(System.in);
-		System.out.print("Matrix shape (rows,columns): ");
+		System.out.print("\n\n---- Matrix ----\n");
+		System.out.print("Shape (rows,columns): ");
 		String input[] = scanner.nextLine().split(",");
 		int rows = Integer.parseInt(input[0]);
 		int columns= Integer.parseInt(input[1]);
@@ -65,9 +73,20 @@ public class MatrixMultiplication {
 
 
 	public static void main(String args[]){
-		int shape[] = readShape();
+		int shape[];
+
+		shape = readShape();
 		Matrix matrixA = new Matrix(shape[0], shape[1]);
 		matrixA.readElements();
 		matrixA.display();
+
+		shape = readShape();
+		Matrix matrixB = new Matrix(shape[0], shape[1]);
+		matrixB.readElements();
+		matrixB.display();
+
+		Matrix result = matrixA.multiply(matrixB);
+		result.display();
+
 	}
 } 
