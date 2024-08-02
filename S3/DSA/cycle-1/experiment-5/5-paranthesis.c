@@ -96,18 +96,24 @@ int main() {
         valid_string_head = append_valid_string(NULL);
         is_empty = 0;
       } else {
-        append_valid_string(get_last_valid_string(valid_string_head));
+        valid_string_head =
+            append_valid_string(get_last_valid_string(valid_string_head));
       }
       valid_string_head->content = (ValidChar *)malloc(sizeof(ValidChar));
       valid_char_head = valid_string_head->content;
       continue;
     } else if (character == ')' && inside == 1) {
-      inside = 0;
       ValidString *tail = get_last_valid_string(valid_string_head);
       ValidChar *tail_content = tail->content;
       display_valid_string(tail_content);
       clear_valid_char(tail_content);
-      valid_string_head = pop_valid_string(valid_string_head);
+      if (valid_string_head->next == NULL) {
+        inside = 0;
+        free(valid_string_head);
+        valid_string_head = NULL;
+				is_empty = 1;
+      } else
+        valid_string_head = pop_valid_string(valid_string_head);
       continue;
     }
     if (inside == 1) {
