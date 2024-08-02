@@ -139,7 +139,7 @@ void traverse_and_add_elements(Matrix *result, MatrixElement *result_element,
 Matrix add_matrix(Matrix *matrixA, Matrix *matrixB) {
   if (matrixA->size.rows != matrixB->size.rows ||
       matrixA->size.columns != matrixB->size.columns) {
-    fprintf(stderr,"Incompatible dimensions! Exiting...");
+    fprintf(stderr, "Incompatible dimensions! Exiting...");
     exit(1);
   }
   Matrix result = *matrixA;
