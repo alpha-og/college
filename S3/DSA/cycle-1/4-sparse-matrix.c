@@ -78,44 +78,87 @@ Matrix *create_matrix(Size size) {
   return matrix;
 }
 
-void display_matrix_elements(Matrix *matrix, Position *current_position,
-                             MatrixElement *current_element) {
-  int inserted = 0;
-  for (int i = 0; i < matrix->size.rows; i++) {
-    if (inserted == 1)
-      break;
-    for (int j = 0; j < matrix->size.columns; j++) {
-      if (j == 0)
-        printf("[");
-      if (current_element->position.row == i &&
-          current_element->position.column == j) {
-        printf("%d, ", current_element->value);
-        inserted = 1;
-        current_position->row = i;
-        current_position->column = j;
-
-        break;
-      }
-      if (j == (matrix->size.columns - 1))
-        printf("],\n");
-    }
-  }
+void display_matrix_elements(MatrixElement *current_element) {
+  printf("(%d,(%d,%d)),", current_element->value, current_element->position.row,
+         current_element->position.column);
   if (current_element->next == NULL)
     return;
-  return display_matrix_elements(matrix, current_position,
-                                 current_element->next);
+  else
+    return display_matrix_elements(current_element->next);
 }
 
-void display_matrix(Matrix *matrix) {
-  printf("[");
-  Position current_position = {.row = 0, .column = 0};
-  display_matrix_elements(matrix, &current_position, matrix->elements);
-  printf("]");
+void display_matrix_in_tuple_form(Matrix *matrix) {
+  printf("\n[");
+  display_matrix_elements(matrix->elements);
+  printf("]\n");
+}
+
+void transpose_matrix_elements(MatrixElement *current_element) {
+  Position new_position = {.row = current_element->position.column,
+                           .column = current_element->position.row};
+  current_element->position = new_position;
+  if (current_element->next == NULL)
+    return;
+  return transpose_matrix_elements(current_element->next);
+}
+
+void transpose_matrix(Matrix *matrix) {
+  transpose_matrix_elements(matrix->elements);
+  Size size = {.rows = matrix->size.rows, .columns = matrix->size.columns};
+  matrix->size = size;
+}
+
+MatrixElement *search_matrix_elements(MatrixElement *current_element,
+                                      Position query) {
+  if (current_element->position.row == query.row &&
+      current_element->position.column == query.column)
+    return current_element;
+  if (current_element->next == NULL)
+    return current_element;
+  else
+    return search_matrix_elements(current_element->next, query);
+}
+
+void traverse_and_add_elements(Matrix *result, MatrixElement *result_element,
+                               MatrixElement *matrixB_element) {
+  MatrixElement *element =
+      search_matrix_elements(result_element, matrixB_element->position);
+  if (element->position.row == matrixB_element->position.row &&
+      element->position.column == matrixB_element->position.column) {
+    element->value += matrixB_element->value;
+  } else {
+    create_matrix_element(result, matrixB_element->position,
+                          matrixB_element->value);
+  }
+  if (matrixB_element->next == NULL)
+    return;
+  return traverse_and_add_elements(result, result_element,
+                                   matrixB_element->next);
+}
+
+Matrix add_matrix(Matrix *matrixA, Matrix *matrixB) {
+  if (matrixA->size.rows != matrixB->size.rows ||
+      matrixA->size.columns != matrixB->size.columns) {
+    fprintf(stderr,"Incompatible dimensions! Exiting...");
+    exit(1);
+  }
+  Matrix result = *matrixA;
+  traverse_and_add_elements(&result, result.elements, matrixB->elements);
+
+  return result;
 }
 
 int main() {
-  Matrix *matrix = create_matrix(read_size());
-  read_elements(matrix);
-  display_matrix(matrix);
+  Matrix *matrixA = create_matrix(read_size());
+  read_elements(matrixA);
+  display_matrix_in_tuple_form(matrixA);
+  // transpose_matrix(matrix);
+  // display_matrix_in_tuple_form(matrix);
+  Matrix *matrixB = create_matrix(read_size());
+  read_elements(matrixB);
+  display_matrix_in_tuple_form(matrixB);
+
+  Matrix result = add_matrix(matrixA, matrixB);
+  display_matrix_in_tuple_form(&result);
   return 0;
 }
