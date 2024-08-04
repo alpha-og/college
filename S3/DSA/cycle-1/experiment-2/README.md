@@ -103,8 +103,10 @@
         RETURN
     ```
 11. ```
+    Student * head = read_student_data("example.txt")
+    ```
+12. ```
     WHILE (1) DO
         display_menu()
-        Student * head = read_student_data("example.txt")
         handle_choice(head)
     ```
