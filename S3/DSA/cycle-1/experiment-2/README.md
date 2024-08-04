@@ -108,7 +108,3 @@
         Student * head = read_student_data("example.txt")
         handle_choice(head)
     ```
-
-```
-
-```
