@@ -1,7 +1,7 @@
 /*
  * Experiment - 05
- * Program to
- * Athul Anoop
+ * Program to extract valid string that satisfies the condition of being present
+ * within a pair of paranthesis (with nesting) Athul Anoop
  */
 
 #include <stdio.h>
