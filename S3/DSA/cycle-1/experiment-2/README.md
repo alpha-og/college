@@ -31,7 +31,7 @@
         open filename as file // file handle
         DECLARE variables register_number, name, cgpa, head
         WHILE (fscanf(file,"%10c%20c%f",register_number,name,&cgpa)) DO
-            head = create_student(register_number,name,cgpa)
+            head = create_student(register_number,name,cgpa,head)
         END WHILE
         RETURN head
    ```
@@ -47,10 +47,7 @@
         IF head->next == NULL THEN
             RETURN
         ELSE IF head->register_number > head->next->register_number THEN
-            Student * tmp = head
-            head = head->next
-            tmp->next = head->next
-            head->next = tmp
+            swap(head)
         END IF
         RETURN bubble_sort_pass(head->next)
    ```
