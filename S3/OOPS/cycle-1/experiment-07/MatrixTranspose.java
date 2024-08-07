@@ -1,6 +1,4 @@
 /* 
-* Experiment-06
-* To implement a Java program to multiply two given matrices.
 * Experiment-07
 * To implement a Java program to display the transpose of a given matrix.
 * Athul Anoop
@@ -42,20 +40,6 @@ class Matrix {
 			System.out.print("], \n");
 		}
 		System.out.print("]\n");
-	}
-
-
-	public Matrix multiply(Matrix other){
-		if (this.columns != other.rows) throw new Error("Operands dimensions do not satisfy requirements for multiplication");
-		Matrix result = new Matrix(this.rows, other.columns);
-		for (int i=0; i<result.rows;i++){
-			for (int j = 0; j< result.columns; j++){
-				for (int k = 0; k < this.columns; k++){
-					result.data[i][j] += this.data[i][k]*other.data[k][j];
-				}
-			}
-		}
-		return result;
 	}
 
 	public Matrix transpose(){
