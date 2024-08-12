@@ -1,164 +1,259 @@
 /*
  * Experiment - 04
- * Program to store sparse matrices in tuple form and perform operations on them
- * Athul Anoop
+ *Write a C program to input two sparse matrices in normal form.
+ *With the help of a menu do the following operations, each implemented as
+ *separate functions: Convert matrix to tuple form. Display the matrix in tuple
+ *form. Find the transpose of a matrix represented in tuple form. Find the sum
+ *of the two matrices in tuple form. Athul Anoop
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct Size {
+typedef struct {
   int columns;
   int rows;
 } Size;
 
-typedef struct Position {
+typedef struct {
   int column;
   int row;
 } Position;
 
-typedef struct MatrixElement {
+typedef struct {
   Position position;
   int value;
-  struct MatrixElement *next;
-} MatrixElement;
+} TupleElement;
 
 typedef struct Matrix {
   Size size;
-  MatrixElement *elements;
+  int non_zero_element_count;
+  int *normal_form_elements;
+  TupleElement *tuple_form_elements;
 } Matrix;
 
-MatrixElement *get_tail(MatrixElement *current_element) {
-  if (current_element->next == NULL) {
-    return current_element;
-  } else {
-    return get_tail(current_element->next);
+void create_matrix(Matrix *matrix);
+void convert_matrix_to_tuple_form(Matrix *matrix);
+void display_matrix_in_normal_form(Matrix *matrix);
+void display_matrix_in_tuple_form(Matrix *matrix);
+void transpose_matrix(Matrix *matrix);
+Matrix *add_matrices(Matrix *matrices);
+void display_menu();
+void handle_choice(Matrix *matrices);
+
+int main() {
+  Matrix *matrices = (Matrix *)calloc(3, sizeof(Matrix));
+  while (1) {
+    display_menu();
+    handle_choice(matrices);
   }
+  return 0;
 }
 
-void create_matrix_element(Matrix *matrix, Position position, int value) {
-  MatrixElement *matrix_element =
-      (MatrixElement *)malloc(sizeof(MatrixElement));
-  matrix_element->next = NULL;
-  matrix_element->position = position;
-  matrix_element->value = value;
-  if (matrix->elements == NULL) {
-    matrix->elements = matrix_element;
-  } else {
-    MatrixElement *tail = get_tail(matrix->elements);
-    tail->next = matrix_element;
+void create_matrix(Matrix *matrix) {
+  if (matrix->normal_form_elements != NULL) {
+    free(matrix->normal_form_elements);
+    matrix->normal_form_elements = NULL;
+    free(matrix->tuple_form_elements);
+    matrix->tuple_form_elements = NULL;
+    matrix->non_zero_element_count = 0;
+    matrix->size = (Size){.rows = 0, .columns = 0};
   }
-}
-
-Size read_size() {
-  Size size = {.columns = 0, .rows = 0};
+  printf("\n---- Matrix ----\n");
   printf("Matrix size (NxM): ");
-  scanf("%dx%d", &(size.rows), &(size.columns));
-  return size;
-}
+  scanf("%dx%d", &(matrix->size.rows), &(matrix->size.columns));
 
-void read_elements(Matrix *matrix) {
-  printf("Provide the matrix elements row by row (x1, x2, ...)\n");
+  matrix->normal_form_elements =
+      (int *)calloc(matrix->size.rows * matrix->size.columns, sizeof(int));
+  ;
+  printf("Provide the matrix elements row by row (x1,x2,...)\n");
   for (int row = 0; row < matrix->size.rows; row++) {
     for (int column = 0; column < matrix->size.columns; column++) {
-      int element = 0;
-      scanf("%d,", &element);
-      if (element != 0) {
-        Position position = {.row = row, .column = column};
-        create_matrix_element(matrix, position, element);
+      int value = 0;
+      scanf("%d,", &value);
+      if (value != 0) {
+        matrix->non_zero_element_count++;
       }
+      matrix->normal_form_elements[matrix->size.columns * row + column] = value;
     }
   }
 }
 
-Matrix *create_matrix(Size size) {
-  Matrix *matrix = (Matrix *)malloc(sizeof(Matrix));
-  matrix->size = size;
-  matrix->elements = NULL;
-  return matrix;
-}
-
-void display_matrix_elements(MatrixElement *current_element) {
-  printf("(%d,(%d,%d)),", current_element->value, current_element->position.row,
-         current_element->position.column);
-  if (current_element->next == NULL)
+void display_matrix_in_normal_form(Matrix *matrix) {
+  if (matrix->normal_form_elements == NULL) {
+    fprintf(stderr, "\nCreate the matrix first\n");
     return;
-  else
-    return display_matrix_elements(current_element->next);
-}
-
-void display_matrix_in_tuple_form(Matrix *matrix) {
-  printf("\n[");
-  display_matrix_elements(matrix->elements);
+  }
+  printf("\nMatrix in normal form:\n");
+  printf("[");
+  for (int row = 0; row < matrix->size.rows; row++) {
+    printf("[");
+    for (int column = 0; column < matrix->size.columns; column++) {
+      printf("%d",
+             matrix->normal_form_elements[matrix->size.columns * row + column]);
+      if (column != matrix->size.columns - 1) {
+        printf(", ");
+      }
+    }
+    printf("]");
+    if (row != matrix->size.rows - 1) {
+      printf(",\n");
+    }
+  }
   printf("]\n");
 }
-
-void transpose_matrix_elements(MatrixElement *current_element) {
-  Position new_position = {.row = current_element->position.column,
-                           .column = current_element->position.row};
-  current_element->position = new_position;
-  if (current_element->next == NULL)
-    return;
-  return transpose_matrix_elements(current_element->next);
+void display_matrix_in_tuple_form(Matrix *matrix) {
+  convert_matrix_to_tuple_form(matrix);
+  printf("\nMatrix in tuple form:\n");
+  for (int index = 0; index < matrix->non_zero_element_count; index++) {
+    TupleElement *current_element = &matrix->tuple_form_elements[index];
+    int value = current_element->value;
+    int row = current_element->position.row;
+    int column = current_element->position.column;
+    printf("(%d-(%d,%d))", value, row, column);
+  }
+  printf("\n");
 }
 
+void convert_matrix_to_tuple_form(Matrix *matrix) {
+  if (matrix->normal_form_elements == NULL) {
+    fprintf(stderr, "\nCreate the matrix first\n");
+    return;
+  }
+  if (matrix->tuple_form_elements != NULL) {
+    free(matrix->tuple_form_elements);
+    matrix->tuple_form_elements = NULL;
+  }
+
+  matrix->tuple_form_elements = (TupleElement *)calloc(
+      matrix->non_zero_element_count, sizeof(TupleElement));
+  int current_index = 0;
+  for (int row = 0; row < matrix->size.rows; row++) {
+    for (int column = 0; column < matrix->size.columns; column++) {
+      int value =
+          matrix->normal_form_elements[matrix->size.columns * row + column];
+      if (value != 0) {
+        if (current_index >= matrix->non_zero_element_count) {
+          return;
+        }
+        matrix->tuple_form_elements[current_index].position =
+            (Position){.row = row, .column = column};
+        matrix->tuple_form_elements[current_index].value = value;
+        current_index++;
+      }
+    }
+  }
+}
 void transpose_matrix(Matrix *matrix) {
-  transpose_matrix_elements(matrix->elements);
-  Size size = {.rows = matrix->size.rows, .columns = matrix->size.columns};
-  matrix->size = size;
-}
-
-MatrixElement *search_matrix_elements(MatrixElement *current_element,
-                                      Position query) {
-  if (current_element->position.row == query.row &&
-      current_element->position.column == query.column)
-    return current_element;
-  if (current_element->next == NULL)
-    return current_element;
-  else
-    return search_matrix_elements(current_element->next, query);
-}
-
-void traverse_and_add_elements(Matrix *result, MatrixElement *result_element,
-                               MatrixElement *matrixB_element) {
-  MatrixElement *element =
-      search_matrix_elements(result_element, matrixB_element->position);
-  if (element->position.row == matrixB_element->position.row &&
-      element->position.column == matrixB_element->position.column) {
-    element->value += matrixB_element->value;
-  } else {
-    create_matrix_element(result, matrixB_element->position,
-                          matrixB_element->value);
-  }
-  if (matrixB_element->next == NULL)
+  if (matrix->normal_form_elements == NULL) {
+    fprintf(stderr, "\nCreate the matrix first\n");
     return;
-  return traverse_and_add_elements(result, result_element,
-                                   matrixB_element->next);
-}
-
-Matrix add_matrix(Matrix *matrixA, Matrix *matrixB) {
-  if (matrixA->size.rows != matrixB->size.rows ||
-      matrixA->size.columns != matrixB->size.columns) {
-    fprintf(stderr, "Incompatible dimensions! Exiting...");
-    exit(1);
   }
-  Matrix result = *matrixA;
-  traverse_and_add_elements(&result, result.elements, matrixB->elements);
+  int *tmp =
+      (int *)calloc(matrix->size.rows * matrix->size.columns, sizeof(int));
+  for (int row = 0; row < matrix->size.rows; row++) {
+    for (int column = 0; column < matrix->size.columns; column++) {
+      int old_index = matrix->size.columns * row + column;
+      int new_index = matrix->size.rows * column + row;
+      tmp[new_index] = matrix->normal_form_elements[old_index];
+    }
+  }
+  matrix->normal_form_elements = tmp;
+  matrix->size =
+      (Size){.rows = matrix->size.columns, .columns = matrix->size.rows};
+}
+Matrix *add_matrices(Matrix *matrices) {
+  if (matrices[0].size.rows != matrices[1].size.rows ||
+      matrices[0].size.columns != matrices[1].size.columns) {
+    fprintf(stderr, "Incompatible dimensions!\n");
+    return NULL;
+  }
+  Matrix *result = (Matrix *)calloc(1, sizeof(Matrix));
 
+  result->size = (Size){.rows = matrices[0].size.rows,
+                        .columns = matrices[0].size.columns};
+  int *result_elements =
+      (int *)calloc(result->size.rows * result->size.columns, sizeof(int));
+  result->normal_form_elements = result_elements;
+  for (int row = 0; row < result->size.rows; row++) {
+    for (int column = 0; column < result->size.columns; column++) {
+      int index = result->size.columns * row + column;
+      result_elements[index] = matrices[0].normal_form_elements[index] +
+                               matrices[1].normal_form_elements[index];
+    }
+  }
   return result;
 }
 
-int main() {
-  Matrix *matrixA = create_matrix(read_size());
-  read_elements(matrixA);
-  display_matrix_in_tuple_form(matrixA);
-  // transpose_matrix(matrix);
-  // display_matrix_in_tuple_form(matrix);
-  Matrix *matrixB = create_matrix(read_size());
-  read_elements(matrixB);
-  display_matrix_in_tuple_form(matrixB);
+void display_menu() {
+  printf("\n---- Menu ----\n");
+  printf("1. Input matrix \n");
+  printf("2. Display matrix in normal form \n");
+  printf("3. Display matrix in tuple form \n");
+  printf("4. Transpose matrix \n");
+  printf("5. Add matrices \n");
+  printf("6. Exit \n");
+  printf("Enter your choice: ");
+}
 
-  Matrix result = add_matrix(matrixA, matrixB);
-  display_matrix_in_tuple_form(&result);
-  return 0;
+int read_matrix_choice() {
+  printf("Enter the matrix index (0-1): ");
+  int index;
+  scanf("%d", &index);
+  if (index != 0 && index != 1) {
+    fprintf(stderr, "Invalid matrix index\n");
+    return -1;
+  }
+  return index;
+}
+
+void handle_choice(Matrix *matrices) {
+  int choice;
+  int index = -1;
+  Matrix *result = NULL;
+  scanf("%d", &choice);
+  switch (choice) {
+  case 1:
+    index = read_matrix_choice();
+    if (index == -1) {
+      return;
+    }
+    create_matrix(&matrices[index]);
+    break;
+  case 2:
+    index = read_matrix_choice();
+    if (index == -1) {
+      break;
+    }
+    display_matrix_in_normal_form(&matrices[index]);
+    break;
+  case 3:
+    index = read_matrix_choice();
+    if (index == -1) {
+      break;
+    }
+    display_matrix_in_tuple_form(&matrices[index]);
+    break;
+  case 4:
+    index = read_matrix_choice();
+    if (index == -1) {
+      return;
+    }
+    transpose_matrix(&matrices[index]);
+    break;
+  case 5:
+    result = add_matrices(matrices);
+    if (result == NULL) {
+      return;
+    }
+    matrices[2] = *result;
+    display_matrix_in_normal_form(&matrices[2]);
+    break;
+  case 6:
+    exit(0);
+    break;
+  default:
+    fprintf(stderr, "Invalid choice\n");
+    break;
+  }
 }
