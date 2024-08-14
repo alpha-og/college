@@ -4,7 +4,8 @@
  *With the help of a menu do the following operations, each implemented as
  *separate functions: Convert matrix to tuple form. Display the matrix in tuple
  *form. Find the transpose of a matrix represented in tuple form. Find the sum
- *of the two matrices in tuple form. Athul Anoop
+ *of the two matrices in tuple form.
+ *Athul Anoop
  */
 
 #include <stdio.h>
@@ -148,6 +149,11 @@ void transpose_matrix(Matrix *matrix) {
   if (matrix->normal_form_elements == NULL) {
     fprintf(stderr, "\nCreate the matrix first\n");
     return;
+  }
+  for (int index = 0; index < matrix->non_zero_element_count; index++) {
+    matrix->tuple_form_elements[index].position =
+        (Position){.row = matrix->tuple_form_elements[index].position.column,
+                   .column = matrix->tuple_form_elements[index].position.row};
   }
   int *tmp =
       (int *)calloc(matrix->size.rows * matrix->size.columns, sizeof(int));

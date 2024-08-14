@@ -1,8 +1,8 @@
 /*
  * Experiment - 05
  * Input a string of parentheses and braces and determine if it forms a valid
- * string. An input string is valid if: Every open parenthesis (brac5. has a
- * corresponding close parenthesis (brac5. Open parentheses (braces) must be
+ * string. An input string is valid if: Every open parenthesis "(". has a
+ * corresponding close parenthesis ")". Open parentheses (braces) must be
  * closed in the correct order within a pair of paranthesis (with nesting)
  * Athul Anoop
  */
