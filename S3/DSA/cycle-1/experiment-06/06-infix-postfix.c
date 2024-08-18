@@ -118,10 +118,14 @@ void convert_infix_to_postfix(char **expression) {
       push(tmp + MAX, &topTmp, ch);
     }
   }
-  printf("Final Expression: %s\n", *expression);
+  printf("\nFinal Expression: %s\n", *expression);
 }
 
 void evaluate_postfix(char **expression) {
+  if (**expression == '\0') {
+    fprintf(stderr, "\nConvert expression to postfix first\n");
+    return;
+  }
   int *tokens = (int *)calloc(MAX, sizeof(int));
   int index = -1;
   char *current = *expression;
