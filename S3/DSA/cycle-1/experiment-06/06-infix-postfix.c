@@ -14,8 +14,8 @@ void display_menu();
 void handle_choice(char *expression);
 int precedence(char operand);
 void convert_infix_to_postfix(char *expression);
-void push(char *top, char ch);
-char pop(char *top);
+void push(char *end, char **top, char ch);
+char pop(char *start, char **top);
 // void evaluate_postfix(char *expression);
 
 int main() {
@@ -54,19 +54,22 @@ void handle_choice(char *expression) {
   }
 }
 
-void push(char *top, char ch) {
-  if (*top == '\0') {
-    *top = ch;
+void push(char *end, char **top, char ch) {
+  if (**top == '\0') {
+    **top = ch;
     return;
   }
-  top = top + 1;
-  *top = ch;
+  if (*top != end) {
+    *top = *top + 1;
+    **top = ch;
+  }
 }
 
-char pop(char *top) {
-  char tmp = *top;
-  *top = '\0';
-  top = top - 1;
+char pop(char *start, char **top) {
+  char tmp = **top;
+  **top = '\0';
+  if (*top != start)
+    *top = *top - 1;
   return tmp;
 }
 
@@ -81,50 +84,34 @@ void convert_infix_to_postfix(char *expression) {
     ch = getchar();
     if (ch >= '0' && ch <= '9') {
       if (isTerm == 0) {
-        *topExp = ' ';
-        topExp = topExp + 1;
+        push(expression + MAX, &topExp, ' ');
         isTerm = 1;
       }
-      *topExp = ch;
-      topExp = topExp + 1;
+      push(expression + MAX, &topExp, ch);
     } else if (ch == ')') {
       isTerm = 0;
-      while (*(topTmp - 1) != '(') {
-        *topExp = ' ';
-        topExp = topExp + 1;
-        *topExp = *(topTmp - 1);
-        *(topTmp - 1) = '\0';
-        topExp = topExp + 1;
-        topTmp = topTmp - 1;
+      while (*topTmp != '(') {
+        push(expression + MAX, &topExp, ' ');
+        push(expression + MAX, &topExp, pop(tmp, &topTmp));
       }
-      *(topTmp - 1) = '\0';
-      topTmp = topTmp - 1;
+      pop(tmp, &topTmp);
     } else if (ch == '(') {
       isTerm = 0;
-      *topTmp = ch;
-      topTmp = topTmp + 1;
+      push(tmp + MAX, &topTmp, ch);
     } else if (ch == '\n') {
       while (topTmp != tmp) {
-        *topExp = ' ';
-        topExp = topExp + 1;
-        *topExp = *(topTmp - 1);
-        topExp = topExp + 1;
-        *(topTmp - 1) = '\0';
-        topTmp = topTmp - 1;
+        push(expression + MAX, &topExp, ' ');
+        push(expression + MAX, &topExp, pop(tmp, &topTmp));
       }
+      push(expression + MAX, &topExp, ' ');
+      push(expression + MAX, &topExp, pop(tmp, &topTmp));
     } else {
       isTerm = 0;
-      while (*(topTmp - 1) != '\0' &&
-             precedence(ch) <= precedence(*(topTmp - 1))) {
-        *topExp = ' ';
-        topExp = topExp + 1;
-        *topExp = *(topTmp - 1);
-        topExp = topExp + 1;
-        *(topTmp - 1) = '\0';
-        topTmp = topTmp - 1;
+      while (*topTmp != '\0' && precedence(ch) <= precedence(*topTmp)) {
+        push(expression + MAX, &topExp, ' ');
+        push(expression + MAX, &topExp, pop(tmp, &topTmp));
       }
-      *topTmp = ch;
-      topTmp = topTmp + 1;
+      push(tmp + MAX, &topTmp, ch);
     }
   }
   printf("Final Expression: %s\n", expression);
