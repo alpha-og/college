@@ -14,6 +14,8 @@ void display_menu();
 void handle_choice(char *expression);
 int precedence(char operand);
 void convert_infix_to_postfix(char *expression);
+void push(char *top, char ch);
+char pop(char *top);
 // void evaluate_postfix(char *expression);
 
 int main() {
@@ -52,6 +54,22 @@ void handle_choice(char *expression) {
   }
 }
 
+void push(char *top, char ch) {
+  if (*top == '\0') {
+    *top = ch;
+    return;
+  }
+  top = top + 1;
+  *top = ch;
+}
+
+char pop(char *top) {
+  char tmp = *top;
+  *top = '\0';
+  top = top - 1;
+  return tmp;
+}
+
 void convert_infix_to_postfix(char *expression) {
   char tmp[MAX] = {'\0'};
   char ch = {'\0'};
@@ -69,39 +87,49 @@ void convert_infix_to_postfix(char *expression) {
       }
       *topExp = ch;
       topExp = topExp + 1;
-
     } else if (ch == ')') {
-      while (*topTmp != '(') {
+      isTerm = 0;
+      while (*(topTmp - 1) != '(') {
         *topExp = ' ';
         topExp = topExp + 1;
-        *topExp = *topTmp;
+        *topExp = *(topTmp - 1);
+        *(topTmp - 1) = '\0';
         topExp = topExp + 1;
-        topTmp = topTmp + 1;
+        topTmp = topTmp - 1;
       }
-      *topTmp = '\0';
+      *(topTmp - 1) = '\0';
+      topTmp = topTmp - 1;
     } else if (ch == '(') {
-      if (isTerm == 1) {
-        *topTmp = ' ';
-        topTmp = topTmp + 1;
-        isTerm = 0;
+      isTerm = 0;
+      *topTmp = ch;
+      topTmp = topTmp + 1;
+    } else if (ch == '\n') {
+      while (topTmp != tmp) {
+        *topExp = ' ';
+        topExp = topExp + 1;
+        *topExp = *(topTmp - 1);
+        topExp = topExp + 1;
+        *(topTmp - 1) = '\0';
+        topTmp = topTmp - 1;
+      }
+    } else {
+      isTerm = 0;
+      while (*(topTmp - 1) != '\0' &&
+             precedence(ch) <= precedence(*(topTmp - 1))) {
+        *topExp = ' ';
+        topExp = topExp + 1;
+        *topExp = *(topTmp - 1);
+        topExp = topExp + 1;
+        *(topTmp - 1) = '\0';
+        topTmp = topTmp - 1;
       }
       *topTmp = ch;
       topTmp = topTmp + 1;
-    } else {
-      if (precedence(ch) >= precedence(*(topTmp - 1))) {
-      }
     }
-    while (topTmp != tmp) {
-      *topExp = ' ';
-      topExp = topExp + 1;
-      *topExp = *topTmp;
-      topExp = topExp + 1;
-      topTmp = topTmp + 1;
-    }
-    printf("Tmp: %s\n", tmp);
-    printf("Expression: %s\n", expression);
   }
+  printf("Final Expression: %s\n", expression);
 }
+
 int precedence(char operand) {
   if (operand == '+' || operand == '-')
     return 0;
