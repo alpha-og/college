@@ -7,12 +7,11 @@
  *increasing order of the time at which the student arrives) on it. The students
  *are to be served in the order of token numbers. Have a menu to display the
  *following in your program:
- * 1. The current student being served
- * 2. Number of students waiting
+ * 1. The current student being served after dequeue
+ * 2. Number of students waiting and queue contents
  * 3. The last token number issued
  * 4. Issue token
- * 5. Serve student
- * 6. Exit
+ * 5. Exit
  *Athul Anoop
  */
 
@@ -48,8 +47,7 @@ void display_menu() {
   printf("2. Display number of students waiting\n");
   printf("3. Display last token number issued\n");
   printf("4. Issue token\n");
-  printf("5. Serve student\n");
-  printf("6. Exit\n");
+  printf("5. Exit\n");
   printf("Enter your choice: ");
 }
 
@@ -61,13 +59,21 @@ void handle_choice(Queue *queue) {
   switch (choice) {
   case 1:
     if (queue->length > 0) {
-      printf("\nCurrent student being served is %d\n", *(queue->front));
+      token = dequeue(queue);
+      if (token != -1)
+        printf("\nServed token number %d\n", token);
     } else
       printf("\nNo tokens have been issued yet\n");
     break;
   case 2:
     if (queue->length > 0) {
       printf("\nNumber of students waiting is %d\n", queue->length);
+      printf("\nQueue contents: ");
+      for (int i = 0; i < queue->length; i++) {
+        printf("%d ", *(queue->front + i));
+      }
+      printf("\n");
+
     } else
       printf("\nNo tokens have been issued yet\n");
     break;
@@ -84,11 +90,6 @@ void handle_choice(Queue *queue) {
       printf("\nYour token number is %d\n", token);
     break;
   case 5:
-    token = dequeue(queue);
-    if (token != -1)
-      printf("\nServed token number %d\n", token);
-    break;
-  case 6:
     printf("\nExiting...\n");
     exit(0);
     break;
