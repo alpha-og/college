@@ -75,22 +75,14 @@ void enqueue(Queue *queue, int food_coupons) {
     };
     *(queue->rear) = token;
   } else {
-    printf("Test 4\n");
     Token *token = (Token *)calloc(1, sizeof(Token));
     *token = (Token){.token_number = (*(queue->rear))->token_number + 1,
                      .food_coupons = food_coupons};
-    if (queue->rear == queue->tokens + queue->capacity) {
-
-      printf("Test 5\n");
+    if (queue->rear == queue->tokens + queue->capacity)
       queue->rear = queue->tokens;
-
-      printf("Test 6\n");
-    } else {
-      printf("Test 7\n");
+    else
       queue->rear = queue->rear + 1;
-    }
     *(queue->rear) = token;
-    printf("Test 8\n");
   }
   queue->length = queue->length + 1;
 }
@@ -152,7 +144,7 @@ void handle_choice(Queue *queue) {
         enqueue(queue, pending);
       }
       printf("Supplied food to person with token number %d and has %d pending "
-             "food coupons",
+             "food coupons\n",
              token->token_number, pending);
     }
     break;
