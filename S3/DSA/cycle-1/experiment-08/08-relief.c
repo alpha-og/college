@@ -141,11 +141,16 @@ void handle_choice(Queue *queue) {
     if (token != NULL) {
       int pending = token->food_coupons - 3;
       if (pending > 0) {
+        free(token);
         enqueue(queue, pending);
+        printf(
+            "Supplied food to person with token number %d and has %d pending "
+            "food coupons\n",
+            token->token_number, pending);
       }
-      printf("Supplied food to person with token number %d and has %d pending "
+      printf("Supplied food to person with token number %d and has no pending "
              "food coupons\n",
-             token->token_number, pending);
+             token->token_number);
     }
     break;
   case 5:
