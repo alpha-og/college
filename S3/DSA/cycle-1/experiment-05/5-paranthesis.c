@@ -8,32 +8,68 @@
  */
 
 #include <stdio.h>
-#define MAX_STRING_SIZE 100
+#include <stdlib.h>
+
+#define MAX 100
+
+typedef struct {
+  char *elements;
+  char *top;
+} Stack;
+
+void push(Stack *stack, char ch);
+char pop(Stack *stack);
 
 int main() {
-  char string[MAX_STRING_SIZE] = {'\0'};
-  printf("Enter a string: ");
-  char current = '\0';
-  char *top = string;
-  while ((current = fgetc(stdin)) != '\n') {
-    if (current == ')') {
-      char tmp[MAX_STRING_SIZE] = {'\0'};
-      int index = 0;
-      while (*top != '(' && top != string) {
-        tmp[index] = *top;
-        top = top - 1;
-        index++;
-      }
-      for (int i = 0; i < index; i++) {
-        printf("%c", tmp[index - i]);
-      }
-      printf(" ");
-      top = top - 1;
+  Stack *stack = (Stack *)calloc(1, sizeof(Stack));
+  stack->elements = (char *)calloc(MAX, sizeof(char));
+  stack->top = stack->elements;
+  char ch = '\0';
+  int is_valid = 1;
+  while ((ch = fgetc(stdin)) != '\n') {
+    if (ch == '(' || ch == '{') {
+      push(stack, ch);
     } else {
-      *top = current;
-      top = top + 1;
+      if (ch == ')') {
+        if (*(stack->top) == '(')
+          pop(stack);
+        else {
+          is_valid = 0;
+          break;
+        }
+      } else if (ch == '}') {
+        if (*(stack->top) == '{')
+          pop(stack);
+        else {
+          is_valid = 0;
+          break;
+        }
+      }
     }
   }
-  printf("\n");
+  if (is_valid)
+    fprintf(stdout, "\nGiven string is valid\n");
+  else
+    fprintf(stdout, "\nGiven string is invalid\n");
   return 0;
+}
+
+void push(Stack *stack, char ch) {
+  if (stack->top == stack->elements + MAX - 1) {
+    fprintf(stderr, "ERROR: Stack overflow. Exiting...\n");
+    exit(1);
+  } else {
+    if (*(stack->elements) != '\0')
+      stack->top = stack->top + 1;
+    *(stack->top) = ch;
+  }
+}
+
+char pop(Stack *stack) {
+  if (stack->top == stack->elements)
+    return '\0';
+  char tmp = *(stack->top);
+  *(stack->top) = '\0';
+  stack->top = stack->top - 1;
+  return tmp;
 }
