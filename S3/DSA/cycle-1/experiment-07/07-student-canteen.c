@@ -118,6 +118,10 @@ int dequeue(Queue *queue) {
     *(queue->front) = 0;
     if (queue->length > 1)
       queue->front = queue->front + 1;
+    else {
+      queue->front = queue->tokens;
+      queue->rear = queue->tokens;
+    }
     queue->length = queue->length - 1;
     return tmp;
   } else {
