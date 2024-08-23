@@ -68,25 +68,30 @@ int is_empty(Queue *queue) {
 void enqueue_at_front(Queue *queue, char *string) {
   if (is_full(queue))
     return;
+  else if (is_empty(queue))
+    *(queue->front) = string;
   else {
-    if (*(queue->front) != NULL && queue->front == queue->strings)
+    if (queue->front == queue->strings)
       queue->front = queue->strings + queue->capacity - 1;
-    else if (*(queue->front) != NULL)
+    else
       queue->front = queue->front - 1;
     *(queue->front) = string;
   }
+  queue->length = queue->length + 1;
 };
 void enqueue_at_rear(Queue *queue, char *string) {
   if (is_full(queue))
     return;
+  else if (is_empty(queue))
+    *(queue->rear) = string;
   else {
-    if (*(queue->rear) != NULL &&
-        queue->rear == queue->strings + queue->capacity - 1)
+    if (queue->rear == queue->strings + queue->capacity - 1)
       queue->rear = queue->strings;
-    else if (*(queue->rear) != NULL)
+    else
       queue->rear = queue->rear + 1;
     *(queue->rear) = string;
   }
+  queue->length = queue->length + 1;
 };
 char *dequeue_from_front(Queue *queue) {
   if (is_empty(queue))
@@ -98,6 +103,7 @@ char *dequeue_from_front(Queue *queue) {
       queue->front = queue->strings;
     else
       queue->front = queue->front + 1;
+    queue->length = queue->length - 1;
     return tmp;
   }
   return NULL;
@@ -112,6 +118,7 @@ char *dequeue_from_rear(Queue *queue) {
       queue->rear = queue->strings + queue->capacity - 1;
     else
       queue->rear = queue->rear - 1;
+    queue->length = queue->length - 1;
     return tmp;
   }
   return NULL;
@@ -154,7 +161,7 @@ void handle_choice(Queue *queue) {
     dequeue_from_rear(queue);
     break;
   case 5:
-    display_queue(queue);
+    // display_queue(queue);
     break;
   case 6:
     printf("Exiting...\n");
