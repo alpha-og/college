@@ -175,7 +175,7 @@ void display_menu() {
 
 void handle_choice(Queue *queue) {
   int choice;
-  char *string = calloc(MAX, sizeof(char));
+  char *string = calloc(100, sizeof(char));
   scanf("%d", &choice);
   switch (choice) {
   case 1:
