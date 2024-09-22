@@ -29,6 +29,17 @@ typedef struct Matrix {
   MatrixElement *head;
 } Matrix;
 
+// function declarations
+
+MatrixElement *createMatrixElement(Position position, int value);
+Matrix *createMatrix(Size size);
+void appendMatrixElement(Matrix *matrix, MatrixElement *matrixElement);
+void readMatrix(Matrix *matrix);
+MatrixElement *getMatrixElementByPosition(Matrix *matrix, Position position);
+void displayMatrix(Matrix *matrix);
+
+// function definitions
+
 MatrixElement *createMatrixElement(Position position, int value) {
   MatrixElement *matrixElement = calloc(1, sizeof(MatrixElement));
   matrixElement->position = position;
@@ -46,15 +57,11 @@ Matrix *createMatrix(Size size) {
 }
 
 void appendMatrixElement(Matrix *matrix, MatrixElement *matrixElement) {
-  if (matrix->head->next == NULL) {
-    matrix->head->next = matrixElement;
-  } else {
-    MatrixElement *tail = matrix->head;
-    while (tail->next != NULL) {
-      tail = tail->next;
-    }
-    tail->next = matrixElement;
+  MatrixElement *tail = matrix->head;
+  while (tail->next != NULL) {
+    tail = tail->next;
   }
+  tail->next = matrixElement;
 }
 
 void readMatrix(Matrix *matrix) {
@@ -66,16 +73,35 @@ void readMatrix(Matrix *matrix) {
       if (element != 0) {
         Position position = {.row = row, .column = column};
         MatrixElement *matrixElement = createMatrixElement(position, element);
-        if (matrix->head == NULL) {
-          matrix->head = matrixElement;
-        } else {
-          MatrixElement *tail = matrix->head;
-          while (tail->next != NULL) {
-            tail = tail->next;
-          }
-          tail->next = matrixElement;
-        }
+        appendMatrixElement(matrix, matrixElement);
       }
     }
   }
+}
+
+MatrixElement *getMatrixElementByPosition(Matrix *matrix, Position position) {
+  MatrixElement *matrixElement = matrix->head;
+  while (matrixElement->position.row != position.row ||
+         matrixElement->position.column != position.column) {
+    matrixElement = matrixElement->next;
+  }
+  return matrixElement;
+}
+
+void displayMatrix(Matrix *matrix) {
+  printf("Matrix:\n");
+  for (int row = 0; row < matrix->size.rows; row++) {
+    for (int column = 0; column < matrix->size.columns; column++) {
+      MatrixElement *matrixElement = getMatrixElementByPosition(
+          matrix, (Position){.row = row, .column = column});
+      if (matrixElement->position.column == column &&
+          matrixElement->position.row == row) {
+        printf("%d ", matrixElement->value);
+      } else {
+        printf("0 ");
+      }
+    }
+    printf("\n");
+  }
+  printf("\n");
 }
