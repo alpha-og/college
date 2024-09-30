@@ -21,7 +21,7 @@ typedef struct Polynomial {
 
 // function declarations
 Polynomial *addPolynomials(Polynomial **p);
-// Polynomial *multiplyPolynomials(Polynomial *p1, Polynomial *p2);
+Polynomial *multiplyPolynomials(Polynomial *p1, Polynomial *p2);
 Polynomial *createPolynomial();
 Polynomial *choosePolynomial();
 Term *createTerm(int coefficient, int exponent);
@@ -119,6 +119,35 @@ Polynomial *addPolynomials(Polynomial **p) {
   return result;
 }
 
+Polynomial *multiplyPolynomials(Polynomial *p1, Polynomial *p2) {
+  if (p1 == NULL || p2 == NULL || p1->head == NULL || p2->head == NULL) {
+    printf("Test ok\n");
+    return NULL;
+  }
+  Polynomial *result = calloc(1, sizeof(Polynomial));
+  Term *head = calloc(1, sizeof(Term));
+  result->head = head;
+  Term *current = p1->head->next;
+  while (current != NULL) {
+    Term *current2 = p2->head->next;
+    while (current2 != NULL) {
+      Term *resultTmp = createTerm(current->coefficient * current2->coefficient,
+                                   current->exponent + current2->exponent);
+
+      Term *tmp = getTermByExponent(result->head, resultTmp->exponent);
+      if (tmp == NULL) {
+        tmp = getLastTerm(result->head);
+        tmp->next = resultTmp;
+      } else {
+        tmp->coefficient += resultTmp->coefficient;
+      }
+      current2 = current2->next;
+    }
+    current = current->next;
+  }
+  return result;
+}
+
 void displayPolynomial(Polynomial *p) {
   if (p == NULL) {
     printf("Polynomial is empty\n");
@@ -179,16 +208,17 @@ void handleChoice(Polynomial **polynomials) {
     if (p == NULL) {
       printf("Polynomials cannot be added\n");
     } else {
+      printf("Result: ");
       displayPolynomial(p);
     }
     break;
   case 3:
-    // p = multiplyPolynomials(polynomials[0], polynomials[1]);
-    // if (p == NULL) {
-    //   printf("Polynomials cannot be multiplied\n");
-    // } else {
-    //   displayPolynomial(p);
-    // }
+    p = multiplyPolynomials(polynomials[0], polynomials[1]);
+    if (p == NULL) {
+      printf("Polynomials cannot be multiplied\n");
+    } else {
+      displayPolynomial(p);
+    }
     break;
   case 4:
     index = choosePolynomialIndex();
