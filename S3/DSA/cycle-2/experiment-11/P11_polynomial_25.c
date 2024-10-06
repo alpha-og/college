@@ -87,7 +87,7 @@ Polynomial *createPolynomial() {
       tmp = getLastTerm(p->head);
       tmp->next = t;
     } else {
-      *tmp = *t;
+      tmp->coefficient += t->coefficient;
     }
   }
   return p;
@@ -96,14 +96,12 @@ Polynomial *createPolynomial() {
 Polynomial *addPolynomials(Polynomial **p) {
   if (p[0] == NULL || p[1] == NULL || p[0]->head == NULL ||
       p[1]->head == NULL) {
-    printf("Test ok\n");
     return NULL;
   }
   Polynomial *result = calloc(1, sizeof(Polynomial));
   Term *head = calloc(1, sizeof(Term));
   result->head = head;
-  int i = 0;
-  for (i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     Term *t = p[i]->head->next;
     while (t != NULL) {
       Term *tmp = getTermByExponent(result->head, t->exponent);
@@ -121,7 +119,6 @@ Polynomial *addPolynomials(Polynomial **p) {
 
 Polynomial *multiplyPolynomials(Polynomial *p1, Polynomial *p2) {
   if (p1 == NULL || p2 == NULL || p1->head == NULL || p2->head == NULL) {
-    printf("Test ok\n");
     return NULL;
   }
   Polynomial *result = calloc(1, sizeof(Polynomial));
