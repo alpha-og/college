@@ -100,9 +100,8 @@ void search(char **root, int root_index, int N,
       } else {
         int current_index = 2 * root_index + child_index;
         char *current = root[current_index];
-        if (current != NULL && strcmp(current, data) == 0) {
+        if (current != NULL && strcmp(current, data) == 0)
           return cb(root, root_index, child_index);
-        }
       }
       child_index = child_index == 1 ? 2 : 1;
     }
@@ -156,17 +155,18 @@ void display_children(char **root, int root_index, int child_index) {
 void display_parent(char **root, int root_index, int child_index) {
   fprintf(stdout, "\nParent of %s: ", root[2 * root_index + child_index]);
   if (root[root_index] == NULL)
-    fprintf(stdout, "-\n");
+    fprintf(stdout, "Parent not found\n");
   else
     fprintf(stdout, "%s\n", root[root_index]);
 }
 
 void display_grandparent(char **root, int root_index, int child_index) {
   fprintf(stdout, "Grandparent of %s: ", root[2 * root_index + child_index]);
-  if (root[root_index / 2] == NULL)
-    fprintf(stdout, "-\n");
+  int grandparent_index = (root_index + 1) / 2 - 1;
+  if (grandparent_index < 0 || root[grandparent_index] == NULL)
+    fprintf(stdout, "Grandparent not found\n");
   else
-    fprintf(stdout, "%s\n", root[root_index / 2]);
+    fprintf(stdout, "%s\n", root[grandparent_index]);
 }
 
 void display_menu() {
