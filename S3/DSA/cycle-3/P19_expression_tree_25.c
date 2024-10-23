@@ -45,8 +45,6 @@ int main() {
 
   // convert infix to postfix
   infix_to_postfix(infix, postfix);
-  printf("\nPostfix expression: %s\n", postfix);
-
   // construct expression tree
   Node *root = construct_tree(postfix);
 
@@ -59,7 +57,7 @@ int main() {
   postorder_traversal(root);
 
   // evaluate expression
-  printf("\nEvaluation result: %d\n", evaluate(root));
+  printf("\nEvaluated result: %d\n", evaluate(root));
 
   return 0;
 }
