@@ -144,6 +144,7 @@ void handle_choice(Node **root) {
   int choice = -1;
   fprintf(stdout, "\nChoice: ");
   fscanf(stdin, "%d", &choice);
+  getchar();
   switch (choice) {
   case 1:
     fprintf(stdout, "Enter a value: ");
