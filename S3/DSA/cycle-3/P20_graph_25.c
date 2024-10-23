@@ -62,6 +62,10 @@ void initialize_graph(Graph *graph, int vertices) {
 
 // function to add an edge between u and v
 void add_edge(Graph *graph, int u, int v) {
+  if (u >= graph->num_vertices || v >= graph->num_vertices) {
+    printf("Invalid vertex\n");
+    return;
+  }
   graph->adj_matrix[u][v] = 1;
   graph->adj_matrix[v][u] = 1; // undirected graph
 
@@ -159,6 +163,7 @@ void handle_choice(Graph *graph) {
 
   printf("\nChoice: ");
   scanf("%d", &choice);
+  getchar();
 
   switch (choice) {
   case 1:
