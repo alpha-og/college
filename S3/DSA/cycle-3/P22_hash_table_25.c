@@ -13,7 +13,7 @@ typedef struct Node {
   struct Node *next;
 } Node;
 
-#define TABLE_SIZE 10
+#define TABLE_SIZE 5
 #define EMPTY -1 // marker for empty slots
 
 // function declarations
