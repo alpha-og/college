@@ -41,8 +41,8 @@ int main() {
   printf("Block 3: %p\n", ptr3);
 
   // free some blocks
-  free(ptr1);
-  free(ptr2);
+  custom_free(ptr1);
+  custom_free(ptr2);
 
   printf("After freeing:\n");
   collect_garbage(); // show free blocks
