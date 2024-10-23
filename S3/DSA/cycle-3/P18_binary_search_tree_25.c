@@ -87,46 +87,51 @@ int search(Node *tree, int key) {
   return 0;
 }
 
+Node *find_min(Node *node) {
+  while (node->left != NULL) {
+    node = node->left;
+  }
+  return node;
+}
+
 // function to delete a node from the tree
 int delete(Node **tree, int key) {
   if (*tree == NULL) {
-    return 0;
-  } else {
-    if ((*tree)->data == key) {
-      if ((*tree)->left == NULL && (*tree)->right == NULL) {
-        free(*tree);
-        *tree = NULL;
-        return 1;
-      } else if ((*tree)->left == NULL && (*tree)->right != NULL) {
-        Node *tmp = (*tree)->right;
-        free(*tree);
-        *tree = tmp;
-        return 1;
-      } else if ((*tree)->left != NULL && (*tree)->right == NULL) {
-        Node *tmp = (*tree)->left;
-        free(*tree);
-        *tree = tmp;
-        return 1;
-      } else if ((*tree)->left != NULL && (*tree)->right != NULL) {
-        Node *tmp = (*tree)->right;
-        while (tmp != NULL && tmp->left != NULL && tmp->left->left != NULL) {
-          tmp = tmp->left;
-        }
-
-        (*tree)->data = tmp->left->data;
-        free(tmp->left);
-        tmp->left = NULL;
-        return 1;
-      }
-    } else if (key < (*tree)->data) {
-      return delete (&(*tree)->left, key);
-    } else if (key > (*tree)->data) {
-      return delete (&(*tree)->right, key);
-    }
+    return 0; // Node not found
   }
-  return 0;
-}
 
+  if (key < (*tree)->data) {
+    // Go left
+    return delete (&(*tree)->left, key);
+  } else if (key > (*tree)->data) {
+    // Go right
+    return delete (&(*tree)->right, key);
+  } else {
+    // Node to delete found
+    if ((*tree)->left == NULL && (*tree)->right == NULL) {
+      // Case 1: No children
+      free(*tree);
+      *tree = NULL;
+    } else if ((*tree)->left == NULL) {
+      // Case 2: Only right child
+      Node *tmp = *tree;
+      *tree = (*tree)->right;
+      free(tmp);
+    } else if ((*tree)->right == NULL) {
+      // Case 3: Only left child
+      Node *tmp = *tree;
+      *tree = (*tree)->left;
+      free(tmp);
+    } else {
+      // Case 4: Two children
+      Node *tmp = find_min((*tree)->right); // Find the in-order successor
+      (*tree)->data = tmp->data;            // Replace data
+      delete (&(*tree)->right, tmp->data);  // Recursively delete successor
+    }
+    return 1; // Node deleted successfully
+  }
+  return 0; // Node not found
+}
 // function to display the tree
 void display_tree(Node *tree) {
   if (tree == NULL) {
