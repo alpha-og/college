@@ -1,6 +1,6 @@
 /*
   Experiment 16
-  Family tree
+  Family tree using binary tree implemented with an array
   25 Athul Anoop
 */
 
