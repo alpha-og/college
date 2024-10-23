@@ -1,3 +1,9 @@
+/*
+  Experiment 19
+  Binary expression tree
+  25 Athul Anoop
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,6 +23,7 @@ typedef struct Stack {
   Node *array[MAX_SIZE];
 } Stack;
 
+// function declarations
 Stack *create_stack();
 void push(Stack *stack, Node *node);
 Node *pop(Stack *stack);
@@ -56,6 +63,8 @@ int main() {
 
   return 0;
 }
+
+// function definitions
 
 // function to create stack
 Stack *create_stack() {

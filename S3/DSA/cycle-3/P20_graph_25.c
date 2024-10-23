@@ -1,3 +1,9 @@
+/*
+  Experiment 20
+  Graph
+  25 Athul Anoop
+*/
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +16,35 @@ typedef struct Graph {
   int adj_list[MAX_VERTICES][MAX_VERTICES];   // adjacency list
   int list_size[MAX_VERTICES];                // size of each adjacency list
 } Graph;
+
+void initialize_graph(Graph *graph, int vertices);
+void add_edge(Graph *graph, int u, int v);
+void display_adjacency_list(Graph *graph);
+void display_adjacency_matrix(Graph *graph);
+void dfs_recursive(Graph *graph, int vertex, bool visited[]);
+void dfs(Graph *graph, int start_vertex);
+void bfs(Graph *graph, int start_vertex);
+void display_menu();
+void handle_choice(Graph *graph);
+
+int main() {
+  printf("Number of vertices: ");
+  int num_vertices;
+  scanf("%d", &num_vertices);
+  Graph graph;
+  initialize_graph(&graph, num_vertices);
+
+  display_menu();
+
+  // main loop
+  while (1) {
+    handle_choice(&graph);
+  }
+
+  return 0;
+}
+
+// function definitions
 
 // function to initialize the graph
 void initialize_graph(Graph *graph, int vertices) {
@@ -154,24 +189,6 @@ void handle_choice(Graph *graph) {
     printf("Exiting...\n");
     exit(0);
   default:
-    printf("Invalid choice. Please try again.\n");
+    printf("Invalid choice \n");
   }
-}
-
-// example usage
-int main() {
-  printf("Number of vertices: ");
-  int num_vertices;
-  scanf("%d", &num_vertices);
-  Graph graph;
-  initialize_graph(&graph, num_vertices); // create a graph with 5 vertices
-
-  display_menu();
-
-  // main loop
-  while (1) {
-    handle_choice(&graph);
-  }
-
-  return 0;
 }

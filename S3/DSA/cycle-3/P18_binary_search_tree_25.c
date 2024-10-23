@@ -1,6 +1,6 @@
 /*
   Experiment 18
-  Tree traversal
+  Binary search tree
   25 Athul Anoop
 */
 

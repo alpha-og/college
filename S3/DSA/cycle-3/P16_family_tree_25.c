@@ -1,3 +1,9 @@
+/*
+  Experiment 16
+  Family tree
+  25 Athul Anoop
+*/
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>

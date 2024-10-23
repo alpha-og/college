@@ -1,9 +1,89 @@
+/*
+  Experiment 21
+  Sorting
+  25 Athul Anoop
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #define MAX_SIZE 100
 
 int comparisons = 0; // global variable to count comparisons
+
+// function declarations
+void read_numbers(const char *filename, int *arr, int *size);
+void insertion_sort(int *arr, int size);
+void selection_sort(int *arr, int size);
+void heapify(int *arr, int size, int root);
+void heap_sort(int *arr, int size);
+void merge(int *arr, int left, int mid, int right);
+void merge_sort(int *arr, int left, int right);
+int partition(int *arr, int low, int high);
+void quick_sort(int *arr, int low, int high);
+void print_array(int *arr, int size);
+
+int main() {
+  int arr[MAX_SIZE];
+  int size;
+
+  // read numbers from file
+  read_numbers("test.txt", arr, &size);
+
+  // Insertion Sort
+  comparisons = 0; // reset comparisons for this sort
+  int arr1[MAX_SIZE];
+  for (int i = 0; i < size; i++)
+    arr1[i] = arr[i]; // copy original array
+  insertion_sort(arr1, size);
+  printf("Insertion Sort: ");
+  print_array(arr1, size);
+  printf("Comparisons: %d\n", comparisons);
+
+  // Selection Sort
+  comparisons = 0; // reset comparisons for this sort
+  int arr2[MAX_SIZE];
+  for (int i = 0; i < size; i++)
+    arr2[i] = arr[i]; // copy original array
+  selection_sort(arr2, size);
+  printf("Selection Sort: ");
+  print_array(arr2, size);
+  printf("Comparisons: %d\n", comparisons);
+
+  // Heap Sort
+  comparisons = 0; // reset comparisons for this sort
+  int arr3[MAX_SIZE];
+  for (int i = 0; i < size; i++)
+    arr3[i] = arr[i]; // copy original array
+  heap_sort(arr3, size);
+  printf("Heap Sort: ");
+  print_array(arr3, size);
+  printf("Comparisons: %d\n", comparisons);
+
+  // Merge Sort
+  comparisons = 0; // reset comparisons for this sort
+  int arr4[MAX_SIZE];
+  for (int i = 0; i < size; i++)
+    arr4[i] = arr[i]; // copy original array
+  merge_sort(arr4, 0, size - 1);
+  printf("Merge Sort: ");
+  print_array(arr4, size);
+  printf("Comparisons: %d\n", comparisons);
+
+  // Quick Sort
+  comparisons = 0; // reset comparisons for this sort
+  int arr5[MAX_SIZE];
+  for (int i = 0; i < size; i++)
+    arr5[i] = arr[i]; // copy original array
+  quick_sort(arr5, 0, size - 1);
+  printf("Quick Sort: ");
+  print_array(arr5, size);
+  printf("Comparisons: %d\n", comparisons);
+
+  return 0;
+}
+
+// function definitions
 
 // function to read numbers from a file
 void read_numbers(const char *filename, int *arr, int *size) {
@@ -21,7 +101,6 @@ void read_numbers(const char *filename, int *arr, int *size) {
 
 // function for Insertion Sort
 void insertion_sort(int *arr, int size) {
-  comparisons = 0; // reset comparisons for this sort
   for (int i = 1; i < size; i++) {
     int key = arr[i];
     int j = i - 1;
@@ -38,7 +117,6 @@ void insertion_sort(int *arr, int size) {
 
 // function for Selection Sort
 void selection_sort(int *arr, int size) {
-  comparisons = 0; // reset comparisons for this sort
   for (int i = 0; i < size - 1; i++) {
     int min_index = i;
     for (int j = i + 1; j < size; j++) {
@@ -47,9 +125,9 @@ void selection_sort(int *arr, int size) {
         min_index = j;
       }
     }
-    int temp = arr[i];
+    int tmp = arr[i];
     arr[i] = arr[min_index];
-    arr[min_index] = temp;
+    arr[min_index] = tmp;
   }
 }
 
@@ -74,23 +152,22 @@ void heapify(int *arr, int size, int root) {
   }
 
   if (largest != root) {
-    int temp = arr[root];
+    int tmp = arr[root];
     arr[root] = arr[largest];
-    arr[largest] = temp;
+    arr[largest] = tmp;
 
     heapify(arr, size, largest);
   }
 }
 
 void heap_sort(int *arr, int size) {
-  comparisons = 0; // reset comparisons for this sort
   for (int i = size / 2 - 1; i >= 0; i--) {
     heapify(arr, size, i);
   }
   for (int i = size - 1; i > 0; i--) {
-    int temp = arr[0];
+    int tmp = arr[0];
     arr[0] = arr[i];
-    arr[i] = temp;
+    arr[i] = tmp;
 
     heapify(arr, i, 0);
   }
@@ -133,7 +210,6 @@ void merge(int *arr, int left, int mid, int right) {
 }
 
 void merge_sort(int *arr, int left, int right) {
-  comparisons = 0; // reset comparisons for this sort
   if (left < right) {
     int mid = left + (right - left) / 2;
 
@@ -152,21 +228,20 @@ int partition(int *arr, int low, int high) {
     comparisons++;
     if (arr[j] < pivot) {
       i++;
-      int temp = arr[i];
+      int tmp = arr[i];
       arr[i] = arr[j];
-      arr[j] = temp;
+      arr[j] = tmp;
     }
   }
 
-  int temp = arr[i + 1];
+  int tmp = arr[i + 1];
   arr[i + 1] = arr[high];
-  arr[high] = temp;
+  arr[high] = tmp;
 
   return (i + 1);
 }
 
 void quick_sort(int *arr, int low, int high) {
-  comparisons = 0; // reset comparisons for this sort
   if (low < high) {
     int pi = partition(arr, low, high);
     quick_sort(arr, low, pi - 1);
@@ -180,60 +255,4 @@ void print_array(int *arr, int size) {
     printf("%d ", arr[i]);
   }
   printf("\n");
-}
-
-// main function
-int main() {
-  int arr[MAX_SIZE];
-  int size;
-
-  // read numbers from file
-  read_numbers("numbers.txt", arr, &size);
-
-  // Insertion Sort
-  int arr1[MAX_SIZE];
-  for (int i = 0; i < size; i++)
-    arr1[i] = arr[i]; // copy original array
-  insertion_sort(arr1, size);
-  printf("Insertion Sort: ");
-  print_array(arr1, size);
-  printf("Comparisons: %d\n", comparisons);
-
-  // Selection Sort
-  int arr2[MAX_SIZE];
-  for (int i = 0; i < size; i++)
-    arr2[i] = arr[i]; // copy original array
-  selection_sort(arr2, size);
-  printf("Selection Sort: ");
-  print_array(arr2, size);
-  printf("Comparisons: %d\n", comparisons);
-
-  // Heap Sort
-  int arr3[MAX_SIZE];
-  for (int i = 0; i < size; i++)
-    arr3[i] = arr[i]; // copy original array
-  heap_sort(arr3, size);
-  printf("Heap Sort: ");
-  print_array(arr3, size);
-  printf("Comparisons: %d\n", comparisons);
-
-  // Merge Sort
-  int arr4[MAX_SIZE];
-  for (int i = 0; i < size; i++)
-    arr4[i] = arr[i]; // copy original array
-  merge_sort(arr4, 0, size - 1);
-  printf("Merge Sort: ");
-  print_array(arr4, size);
-  printf("Comparisons: %d\n", comparisons);
-
-  // Quick Sort
-  int arr5[MAX_SIZE];
-  for (int i = 0; i < size; i++)
-    arr5[i] = arr[i]; // copy original array
-  quick_sort(arr5, 0, size - 1);
-  printf("Quick Sort: ");
-  print_array(arr5, size);
-  printf("Comparisons: %d\n", comparisons);
-
-  return 0;
 }

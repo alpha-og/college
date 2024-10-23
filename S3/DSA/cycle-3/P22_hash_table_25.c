@@ -1,3 +1,9 @@
+/*
+  Experiment 22
+  Hash table
+  25 Athul Anoop
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -11,7 +17,7 @@ typedef struct Node {
 #define EMPTY -1 // marker for empty slots
 
 // function declarations
-int hash_function(int key);
+int hash(int key);
 Node *create_node(int data);
 void insert_chaining(Node *hash_table[], int value);
 void display_chaining(Node *hash_table[]);
@@ -30,20 +36,21 @@ int main() {
   return 0;
 }
 
+// functiond definitions
+
 // hash function to compute index
-int hash_function(int key) { return key % TABLE_SIZE; }
+int hash(int key) { return key % TABLE_SIZE; }
 
 // create a new node
 Node *create_node(int data) {
-  Node *new_node = (Node *)malloc(sizeof(Node));
+  Node *new_node = calloc(1, sizeof(Node));
   new_node->data = data;
-  new_node->next = NULL;
   return new_node;
 }
 
 // insert value into hash table (chaining)
 void insert_chaining(Node *hash_table[], int value) {
-  int index = hash_function(value);
+  int index = hash(value);
   Node *new_node = create_node(value);
   new_node->next = hash_table[index];
   hash_table[index] = new_node;
@@ -53,10 +60,10 @@ void insert_chaining(Node *hash_table[], int value) {
 void display_chaining(Node *hash_table[]) {
   for (int i = 0; i < TABLE_SIZE; i++) {
     printf("index %d: ", i);
-    Node *temp = hash_table[i];
-    while (temp != NULL) {
-      printf("%d -> ", temp->data);
-      temp = temp->next;
+    Node *tmp = hash_table[i];
+    while (tmp != NULL) {
+      printf("%d -> ", tmp->data);
+      tmp = tmp->next;
     }
     printf("NULL\n");
   }
@@ -64,13 +71,16 @@ void display_chaining(Node *hash_table[]) {
 
 // insert value using linear probing
 void insert_linear_probing(int hash_table[], int value) {
-  int index = hash_function(value);
-
+  int index = hash(value);
+  int visited[TABLE_SIZE] = {0}; // track visited slots
   // find the next available slot
-  while (hash_table[index] != EMPTY) {
+  while (hash_table[index] != EMPTY && visited[index] == 0) {
+    visited[index] = 1;
     index = (index + 1) % TABLE_SIZE;
   }
-  hash_table[index] = value;
+  if (hash_table[index] == EMPTY) {
+    hash_table[index] = value;
+  }
 }
 
 // display the hash table (linear probing)
@@ -86,17 +96,17 @@ void display_linear_probing(int hash_table[]) {
 
 // display menu options
 void display_menu() {
-  printf("\nHash Table Operations:\n");
+  printf("\n---- Menu ----\n");
   printf("1. Chaining\n");
   printf("2. Linear Probing\n");
   printf("3. Display menu\n");
   printf("4. Exit\n");
 }
 
-// handle user's choice
+// function to handle user's choice
 void handle_choice() {
-  int choice, num_values;
-  printf("\nChoose an option: ");
+  int choice, num_values = 0;
+  printf("\nChoice: ");
   scanf("%d", &choice);
 
   switch (choice) {
@@ -139,10 +149,10 @@ void handle_choice() {
     display_menu();
     break;
   case 4: // Exit
-    printf("Exiting the program...\n");
+    printf("Exiting...\n");
     exit(0);
     break;
   default:
-    printf("Invalid choice. Please try again.\n");
+    printf("Invalid choice\n");
   }
 }

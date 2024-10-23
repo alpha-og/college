@@ -1,3 +1,9 @@
+/*
+  Experiment 23
+  Garbage collector
+  25 Athul Anoop
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +20,39 @@ typedef struct Block {
 static char memory_pool[MEMORY_POOL_SIZE]; // memory pool
 static Block *free_list = NULL;            // head of the free list
 
-// initialize the memory pool
+// function declarations
+
+void init_memory_pool();
+void *custom_malloc(size_t size);
+void custom_free(void *ptr);
+void collect_garbage();
+
+int main() {
+  init_memory_pool(); // initialize memory pool
+
+  // simulate memory allocations
+  void *ptr1 = custom_malloc(100);
+  void *ptr2 = custom_malloc(200);
+  void *ptr3 = custom_malloc(50);
+
+  printf("Allocated blocks:\n");
+  printf("Block 1: %p\n", ptr1);
+  printf("Block 2: %p\n", ptr2);
+  printf("Block 3: %p\n", ptr3);
+
+  // free some blocks
+  free(ptr1);
+  free(ptr2);
+
+  printf("After freeing:\n");
+  collect_garbage(); // show free blocks
+
+  return 0;
+}
+
+// function definitions
+
+// function to initialize the memory pool
 void init_memory_pool() {
   free_list = (Block *)memory_pool; // set the head of free list
   free_list->size = MEMORY_POOL_SIZE - sizeof(Block); // set block size
@@ -23,7 +61,7 @@ void init_memory_pool() {
   free_list->prev = NULL;                             // no previous block
 }
 
-// allocate memory
+// function to allocate memory
 void *custom_malloc(size_t size) {
   Block *current = free_list;
 
@@ -53,8 +91,8 @@ void *custom_malloc(size_t size) {
   return NULL;
 }
 
-// free allocated memory
-void free(void *ptr) {
+// function to free allocated memory
+void custom_free(void *ptr) {
   if (!ptr)
     return; // return if pointer is NULL
 
@@ -80,7 +118,7 @@ void free(void *ptr) {
   }
 }
 
-void garbage_collect() {
+void collect_garbage() {
   Block *current = free_list;
 
   while (current) {
@@ -89,28 +127,4 @@ void garbage_collect() {
     }
     current = current->next;
   }
-}
-
-// main function to demonstrate the allocator and garbage collector
-int main() {
-  init_memory_pool(); // initialize memory pool
-
-  // simulate memory allocations
-  void *ptr1 = custom_malloc(100);
-  void *ptr2 = custom_malloc(200);
-  void *ptr3 = custom_malloc(50);
-
-  printf("allocated blocks:\n");
-  printf("block 1: %p\n", ptr1);
-  printf("block 2: %p\n", ptr2);
-  printf("block 3: %p\n", ptr3);
-
-  // free some blocks
-  free(ptr1);
-  free(ptr2);
-
-  printf("after freeing:\n");
-  garbage_collect(); // show free blocks
-
-  return 0;
 }
