@@ -13,19 +13,30 @@ display_menu() {
 	echo "5. Exit"
 }
 
+decimal_to_binary() {
+	read -rp "Enter a decimal number: " number
+	echo "$(echo "obase=2;$1" | bc)"
+}
+
+decimal_to_octal() {
+	read -rp "Enter a decimal number: " number
+	echo "$(echo "obase=8;$1" | bc)"
+}
+
+decimal_to_hexadecimal() {
+	read -rp "Enter a decimal number: " number
+	echo "$(echo "obase=16;$1" | bc)"
+}
 handle_choice() {
 	case "$1" in
 	1)
-		read -rp "Enter a decimal number: " number
-		echo "$(echo "obase=2;$2" | bc)"
+		decimal_to_binary "$2"
 		;;
 	2)
-		read -rp "Enter a decimal number: " number
-		echo "$(echo "obase=8;$2" | bc)"
+		decimal_to_octal "$2"
 		;;
 	3)
-		read -rp "Enter a decimal number: " number
-		echo "$(echo "obase=16;$2" | bc)"
+		decimal_to_hexadecimal "$2"
 		;;
 	4)
 		display_menu
