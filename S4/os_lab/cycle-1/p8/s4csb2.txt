@@ -1,0 +1,7 @@
+2023CS001, John Doe, 123 Elm Street, Springfield, 9876543210, john.doe@example.com
+2023CS017, Jane Smith, 456 Oak Avenue, Shelbyville, 8765432109, jane.smith@example.com
+2023CS023, Michael Brown, 789 Pine Road, Capital City, 7654321098, michael.brown@example.com
+2023CS035, Emily David, 58 Syrup Street, 792872987, emily@yahoo.com
+2023CS049, William Johnson, 202 Birch Lane, North Haverbrook, 5432109876, william.johnson@example.com
+2023CS057, Sophia Martinez, 303 Cedar Court, Brockway, 4321098765, sophia.martinez@example.com
+2024EC029, Lara Williams, xyz, 182, lara@tes.com
