@@ -94,8 +94,9 @@ void read_numbers(const char *filename, int *arr, int *size) {
   }
 
   *size = 0;
-  while (fscanf(file, "%d", &arr[(*size)++]) == 1 && *size < MAX_SIZE)
-    ;
+  while (fscanf(file, "%d", &arr[*size]) == 1 && *size < MAX_SIZE) {
+    (*size)++;
+  };
   fclose(file);
 }
 
@@ -110,7 +111,6 @@ void insertion_sort(int *arr, int size) {
       arr[j + 1] = arr[j];
       j--;
     }
-    comparisons++; // count the last comparison when the loop exits
     arr[j + 1] = key;
   }
 }

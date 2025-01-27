@@ -4,9 +4,8 @@ import javax.swing.*;
 
 class buildCalculator implements ActionListener {
     JFrame window;
-    JPanel buttonPanel, resultPanel, displayPanel;
+    JPanel buttonPanel, resultPanel;
     JButton[] button = new JButton[10];
-    JButton addBtn, subBtn, mulBtn, modBtn, eqBtn, delBtn;
     JLabel exp;
     JTextField result;
     Double op1, op2;
@@ -21,15 +20,16 @@ class buildCalculator implements ActionListener {
 
         buttonPanel = new JPanel();
         resultPanel = new JPanel();
-        displayPanel = new JPanel();
         exp = new JLabel();
         result = new JTextField("");
         result.setEditable(false);
+        int tmp = 0;
 
         for (int i = 1; i < 17; i++) {
             JButton btn;
             if (i%4 == 0) {
                 btn = new JButton(operators[i/4-1]);
+                tmp++;
             } else if ( i>12 && i<16) {
                 switch (i) {
                     case 13:
@@ -43,17 +43,16 @@ class buildCalculator implements ActionListener {
                         break;
                 }
             } else {
-                btn = new JButton("" + i);
+                btn = new JButton("" + (i-tmp));
             }
             btn.addActionListener(this);
             buttonPanel.add(btn);
         }
 
         buttonPanel.setLayout(new GridLayout(4, 4));
-        displayPanel.setLayout(new GridLayout(4, 1));
         resultPanel.add(result);
         resultPanel.add(exp);
-        resultPanel.setLayout(new GridLayout(4, 1));
+        resultPanel.setLayout(new GridLayout(2, 1));
 
         window.add(resultPanel);
         window.add(buttonPanel);
@@ -62,17 +61,18 @@ class buildCalculator implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         String s = e.getActionCommand();
-        System.out.println(s);
         if (Character.isDigit(s.charAt(0))) {
             number = result.getText() + s;
             result.setText(number);
-        } else if (s.equals("+") || s.equals("-") || s.equals("*") || s.equals("/")) {
-            op1 = Double.parseDouble(result.getText());
-            op = s;
-            exp.setText(result.getText() + " " + op);
-            result.setText("");
+        }
+        else if (!s.equals("=") && !s.equals("DEL")) {
+                op1 = Double.parseDouble(result.getText());
+                op = s;
+                exp.setText(op1 + op);
+                result.setText("");
         } else if (s.equals("=")) {
             op2 = Double.parseDouble(result.getText());
+            exp.setText(exp.getText() + "" + op2);
             switch (op) {
                 case "+":
                     result.setText("" + (op1 + op2));
