@@ -16,7 +16,7 @@ void *philosopher_action(int *N);
 
 int main() {
   for (int i = 0; i < SIZE; i++) {
-    int status = sem_init(chopsticks, 0, 1);
+    int status = sem_init(chopsticks + i, 0, 1);
     if (status != 0) {
       perror("\nSemaphore initialization failed");
       exit(1);
@@ -24,13 +24,14 @@ int main() {
   }
 
   for (int i = 0; i < SIZE; i++) {
+    int *id = malloc(sizeof(int));
+    *id = i;
     int status =
-        pthread_create(philosophers + i, NULL, (void *)philosopher_action, &i);
+        pthread_create(philosophers + i, NULL, (void *)philosopher_action, id);
     if (status != 0) {
       perror("\nThread creation failed\n");
       exit(1);
     }
-    return 0;
   }
 
   for (int i = 0; i < SIZE; i++) {
@@ -45,11 +46,11 @@ int main() {
 void *philosopher_action(int *N) {
   printf("\nPhilosopher % d is thinking ", *N);
   sem_wait(chopsticks + *N);
-  sem_wait(chopsticks + *N + 1);
+  sem_wait(chopsticks + (*N + 1) % SIZE);
   printf("\nPhilosopher % d is eating", *N);
   sleep(2);
   sem_post(chopsticks + *N);
-  sem_post(chopsticks + *N + 1);
+  sem_post(chopsticks + (*N + 1) % SIZE);
 
   return NULL;
 }
