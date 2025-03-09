@@ -41,6 +41,15 @@ int main() {
       exit(1);
     }
   }
+
+  for (int i = 0; i < SIZE; i++) {
+    int status = sem_destroy(chopsticks + i);
+    if (status != 0) {
+      perror("\nSemaphore destruction failed");
+      exit(1);
+    }
+  }
+  return 0;
 }
 
 void *philosopher_action(int *N) {
@@ -51,6 +60,7 @@ void *philosopher_action(int *N) {
   sleep(2);
   sem_post(chopsticks + *N);
   sem_post(chopsticks + (*N + 1) % SIZE);
+  free(N);
 
   return NULL;
 }
