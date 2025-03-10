@@ -1,6 +1,6 @@
 /* Athul Anoop
  * Roll no: 25
- * Description: C program
+ * Description: C program to display file and directory information
  */
 #include <dirent.h>
 #include <stdio.h>

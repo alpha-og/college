@@ -1,7 +1,8 @@
-// Athul Anoop
-// Roll no: 25
-// Description: C program to fork a new process and load a custom binary into
-// the child process
+/* Athul Anoop
+ * Roll no: 25
+ * Description: C program to fork a new process and load a custom binary into
+ * the child process
+ */
 
 #include <stdio.h>
 #include <stdlib.h>

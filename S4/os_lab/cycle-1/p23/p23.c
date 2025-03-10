@@ -1,6 +1,7 @@
-// Athul Anoop
-// Roll no: 25
-// Description: C program to solve dining philosopher's problem using semaphores
+/* Athul Anoop
+ * Roll no: 25
+ * Description: C program to solve dining philosopher's problem using semaphores
+ */
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdio.h>

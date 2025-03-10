@@ -1,7 +1,8 @@
-// Athul Anoop
-// Roll no: 25
-// Description: C program to fork a new process and load a custom binary into
-// the child process
+/* Athul Anoop
+ * Roll no: 25
+ * Description: C program to fork a new process and load a custom binary into
+ * the child process
+ */
 
 #include <math.h>
 #include <pthread.h>
@@ -90,7 +91,7 @@ float *calcSd(float *input) {
   for (int i = 0; i < inputSize; i++) {
     *sd += pow(input[i] - *mean, 2);
   }
-  *sd /= inputSize-1;
+  *sd /= inputSize - 1;
   *sd = pow(*sd, 0.5);
   return sd;
 }

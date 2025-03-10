@@ -1,7 +1,9 @@
-// Athul Anoop
-// Roll no: 25
-// Description: C program to execute a command and calculate the time taken to
-// complete its execution
+/* Athul Anoop
+ * Roll no: 25
+ * Description: C program to execute a command and calculate the time taken to
+ * complete its execution
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/ipc.h>

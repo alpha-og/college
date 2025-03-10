@@ -1,6 +1,8 @@
-// Athul Anoop
-// Roll no: 25
-// Description: C program to solve TA problem
+/* Athul Anoop
+ * Roll no: 25
+ * Description: C program to solve TA problem
+ */
+
 #include <_stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
