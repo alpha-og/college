@@ -1,7 +1,7 @@
 /* Athul Anoop
  * Roll no: 25
- * Description: C program to fork a new process and load a custom binary into
- * the child process
+ * Description: C program to calculate the mean, median and standard deviation
+ * of provided inputs in different threads
  */
 
 #include <math.h>
