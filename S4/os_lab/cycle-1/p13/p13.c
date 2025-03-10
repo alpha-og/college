@@ -1,6 +1,7 @@
-// Athul Anoop
-// Roll no: 25
-// Description: C program to simulate banker's algorithm on a process mix
+/* Athul Anoop
+ * Roll no: 25
+ * Description: C program to simulate banker's algorithm on a process mix
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
