@@ -10,10 +10,10 @@
 int main() {
   struct rusage usage;
   if (getrusage(RUSAGE_SELF, &usage) == 0) {
-    printf("User mode CPU time: %ld.%d seconds\n", usage.ru_utime.tv_sec,
-           usage.ru_utime.tv_usec);
-    printf("Kernel mode CPU time: %ld.%d seconds\n", usage.ru_stime.tv_sec,
-           usage.ru_stime.tv_usec);
+    printf("User mode CPU time: %ld.%06ld seconds\n", usage.ru_utime.tv_sec,
+           (long)usage.ru_utime.tv_usec);
+    printf("Kernel mode CPU time: %ld.%06ld seconds\n", usage.ru_stime.tv_sec,
+           (long)usage.ru_stime.tv_usec);
   } else
     perror("getrusage");
   for (int i = 0; i < 9999999; i++)
@@ -21,10 +21,10 @@ int main() {
 
   printf("\nAfter long running loop\n");
   if (getrusage(RUSAGE_SELF, &usage) == 0) {
-    printf("User mode CPU time: %ld.%d seconds\n", usage.ru_utime.tv_sec,
-           usage.ru_utime.tv_usec);
-    printf("Kernel mode CPU time: %ld.%d seconds\n", usage.ru_stime.tv_sec,
-           usage.ru_stime.tv_usec);
+    printf("User mode CPU time: %ld.%06ld seconds\n", usage.ru_utime.tv_sec,
+           (long)usage.ru_utime.tv_usec);
+    printf("Kernel mode CPU time: %ld.%06ld seconds\n", usage.ru_stime.tv_sec,
+           (long)usage.ru_stime.tv_usec);
   } else
     perror("getrusage");
 
