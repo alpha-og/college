@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
     exit(1);
   }
   struct dirent *entry;
-  printf("\nPermissions\t UID\t Filename\t\t atime\t\t\t\t\t ctime");
+  printf("\nPermissions\t UID\t Filename\t\t atime\t\t\t ctime");
   while ((entry = readdir(dir)) != NULL) {
     struct stat st = {};
     char full_path[1024];
@@ -39,8 +39,8 @@ int main(int argc, char **argv) {
     char ctime[1024];
     strftime(ctime, sizeof(atime), "%Y-%m-%d %H:%M:%S", time);
 
-    printf("\n%s\t %d\t %s\t\t\t %s\t\t\t %s", extract_ft(st.st_mode),
-           st.st_uid, entry->d_name, atime, ctime);
+    printf("\n%s\t %d\t %s\t\t\t %s\t %s", extract_ft(st.st_mode), st.st_uid,
+           entry->d_name, atime, ctime);
   }
   closedir(dir);
 
