@@ -1,9 +1,7 @@
 /* Athul Anoop
  * Roll no: 25
- * Description: Implementatin of memory allocation methods for fixed partition
- * a) First Fit
- * b) Worst Fit
- * c) Best Fit
+ * Description: C program implementing memory allocation methods for fixed
+ * partition
  */
 
 #include <stdbool.h>
@@ -16,10 +14,12 @@ typedef struct {
   bool allocated;
 } Partition;
 
+void display_menu();
+
 Partition partitions[MAX_PARTITIONS] = {
     {100, false}, {500, false}, {200, false}, {300, false}, {600, false}};
 
-// Function to display partitions
+// helper function to display partitions
 void display_partitions() {
   printf("\nPartition Status:\n");
   for (int i = 0; i < MAX_PARTITIONS; i++) {
@@ -74,11 +74,9 @@ int best_fit(int request_size) {
 int main() {
   int choice, request_size, allocated_partition;
 
+  display_menu();
   while (1) {
-    printf("\nMemory Allocation Methods:\n");
-    printf("1. First Fit\n2. Worst Fit\n3. Best Fit\n4. Display Partitions\n5. "
-           "Exit\n");
-    printf("Enter your choice: ");
+    printf("\nEnter your choice: ");
     scanf("%d", &choice);
 
     switch (choice) {
@@ -117,10 +115,20 @@ int main() {
       break;
 
     case 5:
+      display_menu();
+      break;
+    case 6:
       return 0;
 
     default:
       printf("Invalid choice! Try again.\n");
     }
   }
+}
+
+void display_menu() {
+  printf("\nMemory Allocation Methods:\n");
+  printf("1. First Fit\n2. Worst Fit\n3. Best Fit\n4. Display Partitions\n5. "
+         "Display Menu\n6. "
+         "Exit\n");
 }
