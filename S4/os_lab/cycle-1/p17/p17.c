@@ -1,19 +1,8 @@
 /*
  * Athul Anoop
  * Roll no: 25
- * Description:
- *Simulate the disk-scheduling algorithms as follows:\\
-a) FCFS\\
-b) SCAN\\
-c) LOOK\\
-d) CSCAN\\
-Your program will service a disk with 5,000 cylinders numbered 0 to 4,999. The
-program will generate a random series of 10 cylinder requests and service them
-according to each of the algorithms listed earlier. The program should be
-invoked with the initial position of the disk head and the last request served
-as command line arguments and should report the total number of head movements
-required by each algorithm.\\
-*/
+ * Description: C program to simulate disk scheduling algorithms
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,9 +10,13 @@ required by each algorithm.\\
 
 #define CYLINDERS 5000
 #define REQUEST_SIZE 10
+#define DIRECTION_UP 1
+#define DIRECTION_DOWN 0
 
 void reset();
 void move_head(int destination);
+int update_direction();
+int *update_next_requests();
 void schedule_fcfs();
 void schedule_scan();
 void schedule_look();
@@ -31,13 +24,14 @@ void schedule_cscan();
 
 int head_movement_count = 0;
 int current_position = 0;
-int direction = 1;
+int direction = DIRECTION_UP;
 int requests[REQUEST_SIZE] = {0};
+int next_requests[2] = {0};
 int initial_position = 0;
 int last_request_served = 0;
 
 int main(int argc, char *argv[]) {
-  /* srand(time(NULL)); // randomize seed for random number generator */
+  srand(time(NULL)); // randomize seed for random number generator
 
   if (argc != 3) {
     printf("Usage: %s initial_position last_request_served\n", argv[0]);
@@ -45,11 +39,11 @@ int main(int argc, char *argv[]) {
   }
   initial_position = atoi(argv[1]);
   last_request_served = atoi(argv[2]);
-  if (initial_position < 0 || initial_position > CYLINDERS) {
+  if (initial_position < 0 || initial_position >= CYLINDERS) {
     printf("Invalid value of initial_position\n");
     exit(1);
   }
-  if (last_request_served < 0 || last_request_served > CYLINDERS) {
+  if (last_request_served < 0 || last_request_served >= CYLINDERS) {
     printf("Invalid value of last_request_served\n");
     exit(1);
   }
@@ -62,8 +56,10 @@ int main(int argc, char *argv[]) {
   }
   printf("\n");
 
-  // service requestions using FCFS
+  // service requests using FCFS
   schedule_fcfs();
+
+  // sort requests
   for (int i = 0; i < REQUEST_SIZE; i++) {
     for (int j = 0; j < REQUEST_SIZE - i - 1; j++) {
       if (requests[j] > requests[j + 1]) {
@@ -73,24 +69,34 @@ int main(int argc, char *argv[]) {
       }
     }
   }
-  printf("Sorted requests: ");
+  printf("\nSorted requests: ");
   for (int i = 0; i < REQUEST_SIZE; i++) {
     printf("%d,", requests[i]);
   }
   printf("\n");
 
+  // service requests using SCAN
   schedule_scan();
+  // service requests using LOOK
+  schedule_look();
+  // service requests using CSCAN
+  schedule_cscan();
 
   return 0;
 }
 
 void reset() {
+  printf("\nResetting disk state\n");
   head_movement_count = 0;
-  direction = 1;
+  direction = DIRECTION_UP;
   current_position = initial_position;
+  printf("Head movements = %d\n", head_movement_count);
+  printf("Direction: %s\n", direction == DIRECTION_UP ? "UP" : "DOWN");
+  printf("Current position = %d\n", initial_position);
 }
 
 void move_head(int destination) {
+  printf("Moving head to %d\n", destination);
   if (current_position > destination) {
     head_movement_count += current_position - destination;
     current_position = destination;
@@ -100,8 +106,32 @@ void move_head(int destination) {
   }
 }
 
+int update_direction() {
+  if (last_request_served <= current_position)
+    direction = DIRECTION_UP;
+  else
+    direction = DIRECTION_DOWN;
+  return direction;
+}
+
+int *update_next_requests() {
+  for (int i = 0; i < REQUEST_SIZE; i++) {
+    if (current_position <= requests[i]) {
+      next_requests[1] = i;
+      if (i > 0)
+        next_requests[0] = i - 1;
+      break;
+    }
+  }
+
+  // next[0] corresponds to next request in the downward direction
+  // next[1] corresponds to next request in the upward direction
+  return next_requests;
+}
+
 void schedule_fcfs() {
   reset();
+  printf("\nSimulating FFCFS disk scheduling algorithm\n");
   for (int i = 0; i < REQUEST_SIZE; i++) {
     move_head(requests[i]);
   }
@@ -110,45 +140,95 @@ void schedule_fcfs() {
 
 void schedule_scan() {
   reset();
-  if (last_request_served <= current_position)
-    direction = 1;
-  else
-    direction = -1;
-  int tmp = 0;
+  printf("\nSimulating SCAN disk scheduling algorithm\n");
+  update_direction();
+  update_next_requests();
+  int next = next_requests[direction];
   int completed = 0;
-  for (int i = 0; i < REQUEST_SIZE; i++) {
-    if (current_position <= requests[i]) {
-      tmp = i;
-      break;
-    }
-  }
-  int next_request = tmp;
   while (completed < REQUEST_SIZE) {
-    if (direction == 1) {
-      if (next_request < REQUEST_SIZE) {
-        move_head(requests[next_request++]);
-        printf("Servicing (right) %d\n", requests[next_request]);
+    if (direction == DIRECTION_UP) {
+      if (next < REQUEST_SIZE) {
+        move_head(requests[next++]);
         completed++;
       } else {
-        printf("Moving head to last cylinder\n");
         move_head(CYLINDERS - 1);
-        next_request = tmp - 1;
-        direction = -1;
+        direction = DIRECTION_DOWN;
+        next = next_requests[direction];
       }
     } else {
-      if (next_request >= 0) {
-        move_head(requests[next_request--]);
-        printf("Servicing (left) %d\n", requests[next_request]);
+      if (next >= 0) {
+        move_head(requests[next--]);
         completed++;
       } else {
-        printf("Moving head to first cylinder\n");
         move_head(0);
-        direction = 1;
+        direction = DIRECTION_UP;
+        next = next_requests[direction];
       }
     }
   }
 
   printf("Head movements for SCAN: %d\n", head_movement_count);
 }
-void schedule_look() {}
-void schedule_cscan() {}
+void schedule_look() {
+  reset();
+  printf("\nSimulating LOOK disk scheduling algorithm\n");
+  update_direction();
+  update_next_requests();
+  int next = next_requests[direction];
+  int completed = 0;
+
+  while (completed < REQUEST_SIZE) {
+    if (direction == DIRECTION_UP) {
+      if (next < REQUEST_SIZE) {
+        move_head(requests[next++]);
+        completed++;
+      } else {
+        direction = DIRECTION_DOWN;
+        next = next_requests[direction];
+      }
+    } else {
+      if (next >= 0) {
+        move_head(requests[next--]);
+        completed++;
+      } else {
+        direction = DIRECTION_UP;
+        next = next_requests[direction];
+      }
+    }
+  }
+
+  printf("Head movements for LOOK: %d\n", head_movement_count);
+}
+void schedule_cscan() {
+  reset();
+
+  printf("\nSimulating CSCAN disk scheduling algorithm\n");
+  update_direction();
+  update_next_requests();
+  int next = next_requests[direction];
+  int completed = 0;
+
+  while (completed < REQUEST_SIZE) {
+    if (direction == DIRECTION_UP) {
+      if (next < REQUEST_SIZE) {
+        move_head(requests[next++]);
+        completed++;
+      } else {
+        move_head(CYLINDERS - 1);
+        move_head(0);
+        next = 0;
+      }
+    } else {
+      if (next >= 0) {
+        move_head(requests[next--]);
+        completed++;
+      } else {
+        move_head(0);
+        move_head(CYLINDERS - 1);
+        next = REQUEST_SIZE - 1;
+      }
+    }
+  }
+
+  printf("Head movements for CSCAN: %d\n", head_movement_count);
+}
