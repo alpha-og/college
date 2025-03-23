@@ -2,6 +2,7 @@
  * Roll no: 25
  * Description: C program to display file and directory information
  */
+
 #include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
