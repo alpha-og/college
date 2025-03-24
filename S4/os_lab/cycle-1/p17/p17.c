@@ -131,7 +131,7 @@ int *update_next_requests() {
 
 void schedule_fcfs() {
   reset();
-  printf("\nSimulating FFCFS disk scheduling algorithm\n");
+  printf("\nSimulating FCFS disk scheduling algorithm\n");
   for (int i = 0; i < REQUEST_SIZE; i++) {
     move_head(requests[i]);
   }
