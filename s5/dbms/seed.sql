@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS staff(
-	staffid bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+staffid bigint GENERATED ALWAYS AS IDENTITY,
 	stffirstname text,
 	stflastname text,
 	stfstreetadress text,
@@ -10,60 +10,36 @@ CREATE TABLE IF NOT EXISTS staff(
 	stfphonenumber text,
 	joiningdate date,
 	salary bigint,
-	position text
-);
-CREATE TABLE IF NOT EXISTS faculty(
-	staffid bigint REFERENCES staff (staffid),
-	title text,
-	status text,
-	tenured date
+	position text,
+	PRIMARY KEY (staffid)
 );
 CREATE TABLE IF NOT EXISTS categories(
-	categoryid bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+categoryid bigint GENERATED ALWAYS AS IDENTITY,
 	categorydescription text,
-	departmentid bigint
-);
-CREATE TABLE IF NOT EXISTS faculty_categories(
-	staffid bigint REFERENCES staff (staffid),
-	categoryid bigint REFERENCES categories (categoryid),
-	PRIMARY KEY (staffid, categoryid)
+	departmentid bigint,
+	PRIMARY KEY (categoryid)
 );
 CREATE TABLE IF NOT EXISTS subjects(
-	subjectid bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	categoryid bigint REFERENCES categories (categoryid),
+FOREIGN KEY (categoryid) REFERENCES categories (categoryid),	subjectid bigint GENERATED ALWAYS AS IDENTITY,
+	categoryid bigint,
 	subjectcode int,
-	subjectname text
-);
-CREATE TABLE IF NOT EXISTS faculty_subjects(
-	staffid bigint REFERENCES staff (staffid),
-	subjectid bigint REFERENCES subjects (subjectid),
-	proficiencyrating int,
-	PRIMARY KEY (staffid, subjectid)
+	subjectname text,
+	PRIMARY KEY (subjectid)
 );
 CREATE TABLE IF NOT EXISTS buildings(
-	buildingcode bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+buildingcode bigint GENERATED ALWAYS AS IDENTITY,
 	buildingname text,
-	numberoffloorts int
+	numberoffloorts int,
+	PRIMARY KEY (buildingcode)
 );
 CREATE TABLE IF NOT EXISTS classrooms(
-	classroomid bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	buildingcode bigint REFERENCES buildings (buildingcode),
-	phoneavailable boolean
-);
-CREATE TABLE IF NOT EXISTS classes(
-	classid bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	subjectid bigint REFERENCES subjects (subjectid),
-	classroomid bigint REFERENCES classrooms (classroomid),
-	starttime time,
-	duration int
-);
-CREATE TABLE IF NOT EXISTS faculty_classes(
-	staffid bigint REFERENCES staff (staffid),
-	classid bigint REFERENCES classes (classid),
-	PRIMARY KEY (staffid, classid)
+FOREIGN KEY (buildingcode) REFERENCES buildings (buildingcode),	classroomid bigint GENERATED ALWAYS AS IDENTITY,
+	buildingcode bigint,
+	phoneavailable boolean,
+	PRIMARY KEY (classroomid)
 );
 CREATE TABLE IF NOT EXISTS students(
-	studentid bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+studentid bigint GENERATED ALWAYS AS IDENTITY,
 	studfirstname text,
 	studlastname text,
 	studstreetadress text,
@@ -71,145 +47,248 @@ CREATE TABLE IF NOT EXISTS students(
 	studstate text,
 	studzipcode int,
 	studareacode int,
-	studphonenumber text
+	studphonenumber text,
+	PRIMARY KEY (studentid)
 );
 CREATE TABLE IF NOT EXISTS student_class_status(
-	classstatus bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	classdescription text
+classstatus bigint GENERATED ALWAYS AS IDENTITY,
+	classdescription text,
+	PRIMARY KEY (classstatus)
+);
+CREATE TABLE IF NOT EXISTS faculty(
+FOREIGN KEY (staffid) REFERENCES staff (staffid),	staffid bigint NOT NULL UNIQUE,
+	title text,
+	status text,
+	tenured date
+);
+CREATE TABLE IF NOT EXISTS faculty_categories(
+FOREIGN KEY (staffid) REFERENCES staff (staffid),	FOREIGN KEY (categoryid) REFERENCES categories (categoryid),	staffid bigint,
+	categoryid bigint,
+	PRIMARY KEY (staffid, categoryid)
+);
+CREATE TABLE IF NOT EXISTS faculty_subjects(
+FOREIGN KEY (staffid) REFERENCES staff (staffid),	FOREIGN KEY (subjectid) REFERENCES subjects (subjectid),	staffid bigint,
+	subjectid bigint,
+	proficiencyrating int,
+	PRIMARY KEY (staffid, subjectid)
+);
+CREATE TABLE IF NOT EXISTS classes(
+FOREIGN KEY (subjectid) REFERENCES subjects (subjectid),	FOREIGN KEY (classroomid) REFERENCES classrooms (classroomid),	classid bigint GENERATED ALWAYS AS IDENTITY,
+	subjectid bigint,
+	classroomid bigint,
+	starttime time,
+	duration int,
+	PRIMARY KEY (classid)
+);
+CREATE TABLE IF NOT EXISTS faculty_classes(
+FOREIGN KEY (staffid) REFERENCES staff (staffid),	FOREIGN KEY (classid) REFERENCES classes (classid),	staffid bigint,
+	classid bigint,
+	PRIMARY KEY (staffid, classid)
 );
 CREATE TABLE IF NOT EXISTS student_schedules(
-	classid bigint REFERENCES classes (classid),
-	studentid bigint REFERENCES students (studentid),
-	classstatus bigint REFERENCES student_class_status (classstatus),
+FOREIGN KEY (classid) REFERENCES classes (classid),	FOREIGN KEY (studentid) REFERENCES students (studentid),	FOREIGN KEY (classstatus) REFERENCES student_class_status (classstatus),	classid bigint,
+	studentid bigint,
+	classstatus bigint,
 	grade int,
 	PRIMARY KEY (classid, studentid)
 );
-INSERT INTO staff (stfFirstName, stfLastName, stfStreetAdress, stfCity, stfState, stfZipCode, stfAreaCode, stfPhoneNumber, joiningDate, salary, position) VALUES
-    ('Eliza', 'Patel', '49 Road', 'Palakkad', 'Kerala', 681931, 495, '9200780963', '2019-01-25', 4000, 'Assistant Professor'),
-    ('Yash', 'Zehra', '1 Lane', 'Tirupati', 'Tamil Nadu', 628361, 431, '9385970256', '2021-09-08', 8000, 'Guest Lecturer'),
-    ('Bob', 'Babu', '4 Street', 'Nizamabad', 'Telangana', 501674, 870, '9509314931', '2021-04-17', 12000, 'Adjunct Professor'),
-    ('Hari', 'Oberoi', '98 Lane', 'Gaya', 'Bihar', 847569, 612, '9632374341', '2019-10-18', 20000, 'Guest Lecturer'),
-    ('Oscar', 'Warrier', '59 Avenue', 'Dharamshala', 'Himachal Pradesh', 171891, 189, '9123074397', '2018-04-06', 30000, 'Lab Instructor'),
-    ('Om', 'Ullah', '38 Street', 'Panipat', 'Haryana', 123276, 129, '9897947650', '2017-04-29', 15000, 'Teaching Fellow'),
-    ('Gita', 'Prasad', '86 Road', 'Solapur', 'Maharashtra', 432820, 240, '9425739463', '2016-10-12', 25000, 'Senior Faculty'),
-    ('Lakshman', 'Chacko', '62 Road', 'Dibrugarh', 'Assam', 788278, 376, '9898574707', '2022-07-16', 18000, 'Academic Coordinator');
+INSERT INTO staff (stffirstname, stflastname, stfstreetadress, stfcity, stfstate, stfzipcode, stfareacode, stfphonenumber, joiningdate, salary, position) VALUES
+    ('Meera', 'Warrier', '99 Street', 'Palakkad', 'Kerala', 681537, 471, '9847144854', '2018-08-04', 4000, 'Lecturer'),
+    ('Bob', 'Babu', '4 Street', 'Tirunelveli', 'Tamil Nadu', 614992, 431, '9509314931', '2021-04-17', 12000, 'Professor'),
+    ('Yash', 'Choudhary', '64 Road', 'Hyderabad', 'Telangana', 506915, 878, '9471192992', '2016-03-08', 4000, 'Associate Professor'),
+    ('Anita', 'Prasad', '72 Street', 'Muzaffarpur', 'Bihar', 814338, 641, '9299615329', '2020-08-26', 30000, 'Lecturer'),
+    ('Varun', 'Thakur', '65 Lane', 'Manali', 'Himachal Pradesh', 177044, 186, '9645157245', '2022-11-26', 8000, 'Professor'),
+    ('Gita', 'Zaman', '76 Street', 'Panipat', 'Haryana', 126220, 130, '9615639791', '2016-04-26', 30000, 'Lecturer'),
+    ('Jatin', 'Singh', '100 Avenue', 'Solapur', 'Maharashtra', 426495, 240, '9192843870', '2018-07-08', 12000, 'Lecturer'),
+    ('Xander', 'Fazal', '94 Street', 'Silchar', 'Assam', 788330, 361, '9603928666', '2014-01-31', 12000, 'Lecturer'),
+    ('Alice', 'Zehra', '26 Road', 'Vadodara', 'Gujarat', 385794, 265, '9534280104', '2019-05-11', 12000, 'Associate Professor'),
+    ('Rohit', 'Joshi', '78 Street', 'Udaipur', 'Rajasthan', 337866, 151, '9511983601', '2022-05-20', 60000, 'Lecturer'),
+    ('Brian', 'Dinesh', '62 Avenue', 'Ghaziabad', 'Uttar Pradesh', 267174, 522, '9712032126', '2019-10-24', 80000, 'Associate Professor'),
+    ('Anita', 'Wadhwa', '1 Avenue', 'Guntur', 'Andhra Pradesh', 533077, 877, '9591931376', '2020-04-28', 60000, 'Professor'),
+    ('Frank', 'Sharma', '71 Avenue', 'Kolkata', 'West Bengal', 715047, 341, '9134852725', '2023-01-13', 80000, 'Lecturer'),
+    ('Alice', 'Warrier', '97 Avenue', 'Jalandhar', 'Punjab', 142308, 161, '9367962176', '2016-08-10', 4000, 'Lecturer'),
+    ('Eve', 'Kapoor', '21 Avenue', 'Dehradun', 'Uttarakhand', 260473, 135, '9666270385', '2024-04-09', 45000, 'Professor');
 
-INSERT INTO faculty (staffID, title, status, tenured) VALUES
-    (1, 'Mr.', 'Part-time', '2024-01-24'),
-    (2, 'Ms.', 'Full-time', '2027-09-07'),
-    (3, 'Dr.', 'Full-time', '2026-04-16'),
-    (4, 'Prof.', 'Part-time', '2025-10-16'),
-    (5, 'Dr.', 'Part-time', '2023-04-05'),
-    (6, 'Ms.', 'Visiting', '2019-04-29');
+INSERT INTO faculty (staffid, title, status, tenured) VALUES
+    (3, 'Prof.', 'Part-time', '2019-08-05'),
+    (5, 'Dr.', 'Full-time', '2023-04-01'),
+    (8, 'Prof.', 'Part-time', '2022-05-04'),
+    (11, 'Dr.', 'Part-time', '2022-12-14'),
+    (13, 'Prof.', 'Full-time', '2021-03-14'),
+    (14, 'Prof.', 'Full-time', '2023-12-27');
 
-INSERT INTO categories (categoryDescription, departmentID) VALUES
+INSERT INTO categories (categorydescription, departmentid) VALUES
     ('Computer Science', 101),
     ('Mathematics', 102),
     ('Electronics', 103);
 
-INSERT INTO subjects (categoryID, subjectCode, subjectName) VALUES
-    (1, 101, 'Data Analysis and Algorithms'),
-    (1, 102, 'Computer Graphics'),
-    (2, 103, 'Calculus'),
-    (2, 104, 'Linear Algebra'),
-    (3, 105, 'Signal Processing'),
-    (3, 106, 'Digital Electronics');
+INSERT INTO subjects (categoryid, subjectcode, subjectname) VALUES
+    (1, 101, 'Digital Logic Design'),
+    (1, 101, 'Mobile Computing'),
+    (3, 102, 'Computer Networks'),
+    (2, 103, 'Software Engineering'),
+    (3, 104, 'VLSI Design'),
+    (2, 105, 'Analog Electronics'),
+    (1, 106, 'Mathematical Modeling'),
+    (3, 107, 'Signal Processing'),
+    (2, 108, 'Numerical Analysis'),
+    (3, 109, 'Computer Graphics');
 
-INSERT INTO faculty_subjects (staffID, subjectID, proficiencyRating) VALUES
-    (1, 3, 9),
-    (1, 2, 10),
-    (2, 5, 8),
-    (2, 4, 10),
-    (3, 3, 10),
-    (3, 2, 10),
-    (4, 5, 9),
-    (4, 4, 10),
-    (5, 6, 8),
-    (5, 7, 7),
-    (6, 6, 7),
-    (6, 7, 7);
+INSERT INTO faculty_subjects (staffid, subjectid, proficiencyrating) VALUES
+    (3, 1, 9),
+    (3, 7, 10),
+    (5, 1, 8),
+    (5, 5, 7),
+    (5, 3, 9),
+    (8, 2, 7),
+    (11, 3, 9),
+    (11, 7, 7),
+    (13, 1, 9),
+    (14, 10, 6);
 
-INSERT INTO buildings (buildingName, numberOfFloorts) VALUES
+INSERT INTO buildings (buildingname, numberoffloorts) VALUES
     ('Computer Science Block', 4),
     ('Engineering Block', 5),
-    ('Mathematics Block', 3),
-    ('Laboratory Block', 2);
+    ('Mathematics Block', 3);
 
-INSERT INTO classrooms (buildingCode, phoneAvailable) VALUES
+INSERT INTO classrooms (buildingcode, phoneavailable) VALUES
     (1, FALSE),
     (1, TRUE),
+    (1, TRUE),
+    (1, FALSE),
+    (2, TRUE),
     (2, FALSE),
     (2, TRUE),
-    (3, FALSE),
+    (2, TRUE),
+    (2, FALSE),
     (3, TRUE),
-    (4, TRUE),
-    (4, FALSE);
+    (3, FALSE),
+    (3, TRUE);
 
-INSERT INTO classes (subjectID, classroomID, startTime, duration) VALUES
-    (3, 2, '09:30:00', 40),
-    (3, 3, '11:00:00', 45),
-    (4, 6, '14:00:00', 60),
-    (1, 1, '11:00:00', 90),
-    (3, 7, '09:30:00', 90);
+INSERT INTO classes (subjectid, classroomid, starttime, duration) VALUES
+    (9, 8, '08:00:00', 30),
+    (10, 7, '11:00:00', 60),
+    (3, 4, '11:00:00', 30),
+    (6, 7, '09:30:00', 45),
+    (2, 7, '15:30:00', 60),
+    (9, 8, '15:30:00', 60),
+    (2, 12, '08:00:00', 45),
+    (3, 3, '09:30:00', 30),
+    (5, 6, '15:30:00', 45),
+    (6, 6, '11:00:00', 60);
 
-INSERT INTO faculty_classes (staffID, classID) VALUES
-    (1, 1),
-    (1, 3),
-    (2, 5),
-    (2, 4),
-    (3, 2),
-    (3, 1),
-    (4, 2),
-    (4, 1),
-    (5, 4),
-    (6, 5),
-    (6, 2);
+INSERT INTO faculty_classes (staffid, classid) VALUES
+    (3, 5),
+    (5, 10),
+    (8, 8),
+    (8, 3),
+    (8, 2),
+    (11, 1),
+    (11, 7),
+    (13, 7),
+    (14, 3);
 
-INSERT INTO students (studFirstName, studLastName, studStreetAdress, studCity, studState, studZipCode, studAreaCode, studPhoneNumber) VALUES
-    ('Priya', 'Upadhyay', '94 Colony', 'Dehradun', 'Uttarakhand', 681931, 136, '9587288736'),
-    ('David', 'Tiwari', '19 Lane', 'Gurgaon', 'Haryana', 129784, 129, '9327774671'),
-    ('Kavya', 'Qureshi', '26 Lane', 'Durgapur', 'West Bengal', 719521, 341, '9546861563'),
-    ('Deepak', 'Kapoor', '89 Lane', 'Jalandhar', 'Punjab', 141242, 172, '9712334103'),
-    ('Nina', 'Khan', '96 Colony', 'Varanasi', 'Uttar Pradesh', 226267, 542, '9206327675'),
-    ('Rohit', 'Yadav', '47 Colony', 'Nainital', 'Uttarakhand', 246360, 136, '9212124648'),
-    ('Bob', 'Kapoor', '35 Road', 'Gurgaon', 'Haryana', 130660, 169, '9402099104'),
-    ('Nina', 'Reddy', '96 Lane', 'Asansol', 'West Bengal', 708856, 342, '9560893390'),
-    ('Sana', 'Inamdar', '72 Street', 'Ludhiana', 'Punjab', 157944, 181, '9999465742'),
-    ('Karen', 'Kapoor', '78 Street', 'Lucknow', 'Uttar Pradesh', 205295, 512, '9242825930');
+INSERT INTO students (studfirstname, studlastname, studstreetadress, studcity, studstate, studzipcode, studareacode, studphonenumber) VALUES
+    ('Arjun', 'Yadav', '19 Street', 'Lucknow', 'Uttar Pradesh', 681537, 581, '9588840556'),
+    ('Indu', 'Hussain', '68 Road', 'Mangalore', 'Karnataka', 571956, 824, '9706070170'),
+    ('Rohit', 'Antony', '21 Colony', 'Mumbai', 'Maharashtra', 419381, 20, '9758930577'),
+    ('Lakshman', 'Aggarwal', '30 Lane', 'Mumbai', 'Maharashtra', 412315, 22, '9943437224'),
+    ('Grace', 'Bhatt', '58 Road', 'Gurgaon', 'Haryana', 127910, 129, '9898870802'),
+    ('Nina', 'Patel', '50 Lane', 'Dibrugarh', 'Assam', 787815, 373, '9207512855'),
+    ('Meera', 'Upadhyay', '67 Colony', 'Kochi', 'Kerala', 692891, 487, '9880055967'),
+    ('Meera', 'Deshmukh', '24 Road', 'Varanasi', 'Uttar Pradesh', 208252, 512, '9440751465'),
+    ('Rohit', 'Wadhwa', '43 Street', 'Nizamabad', 'Telangana', 508895, 878, '9603499126'),
+    ('Xander', 'Fernandez', '45 Lane', 'Guwahati', 'Assam', 785035, 366, '9364549795'),
+    ('Tina', 'Chacko', '51 Street', 'Gurgaon', 'Haryana', 131104, 129, '9519273144'),
+    ('Grace', 'Inamdar', '88 Lane', 'Noida', 'Uttar Pradesh', 239689, 522, '9458987767'),
+    ('Eve', 'Reddy', '80 Lane', 'Kolkata', 'West Bengal', 701335, 341, '9531401177'),
+    ('Yash', 'Kumar', '55 Colony', 'Bangalore', 'Karnataka', 580820, 80, '9412267262'),
+    ('Arjun', 'Upadhyay', '19 Street', 'Shimla', 'Himachal Pradesh', 170826, 189, '9935098308'),
+    ('Grace', 'Thakur', '75 Road', 'Guntur', 'Andhra Pradesh', 509275, 866, '9428160067'),
+    ('Uma', 'Devi', '89 Street', 'Delhi', 'Delhi', 110018, 11, '9937243152'),
+    ('Usha', 'Quazi', '41 Road', 'Visakhapatnam', 'Andhra Pradesh', 528353, 863, '9152139612'),
+    ('Brian', 'Joshi', '42 Colony', 'Davangere', 'Karnataka', 591568, 831, '9967854655'),
+    ('Victor', 'Kapoor', '43 Colony', 'Dibrugarh', 'Assam', 780178, 376, '9997960631');
 
-INSERT INTO student_class_status (classDescription) VALUES
+INSERT INTO student_class_status (classdescription) VALUES
     ('Enrolled'),
     ('Completed'),
     ('Dropped'),
     ('Withdrawn');
 
-INSERT INTO student_schedules (classID, studentID, classStatus, grade) VALUES
-    (3, 1, 1, 67),
-    (5, 1, 2, 88),
-    (2, 1, 2, 95),
-    (2, 2, 1, 85),
-    (1, 2, 1, 63),
-    (1, 3, 1, 69),
-    (3, 3, 1, 85),
-    (3, 4, 1, 73),
-    (2, 5, 2, 87),
-    (5, 5, 1, 65),
-    (5, 6, 2, 84),
-    (3, 6, 2, 68),
-    (1, 7, 1, 85),
-    (2, 7, 3, 49),
-    (5, 8, 1, 79),
-    (2, 8, 2, 84),
-    (3, 9, 1, 68),
-    (2, 10, 1, 85),
-    (4, 10, 2, 69),
-    (5, 10, 1, 79);
+INSERT INTO student_schedules (classid, studentid, classstatus, grade) VALUES
+    (7, 1, 1, 68),
+    (1, 1, 1, 77),
+    (10, 2, 1, 60),
+    (7, 2, 1, 88),
+    (3, 2, 2, 64),
+    (6, 3, 1, NULL),
+    (8, 3, 2, 89),
+    (5, 4, 2, 73),
+    (4, 4, 1, 73),
+    (1, 4, 1, 95),
+    (8, 4, 1, 89),
+    (2, 5, 1, 63),
+    (10, 5, 1, 82),
+    (7, 5, 1, NULL),
+    (9, 5, 1, NULL),
+    (2, 6, 2, 58),
+    (5, 6, 3, NULL),
+    (10, 6, 3, NULL),
+    (3, 6, 1, NULL),
+    (7, 7, 1, NULL),
+    (10, 7, 1, 91),
+    (2, 8, 1, 67),
+    (7, 8, 1, 84),
+    (9, 9, 1, 75),
+    (1, 9, 2, 68),
+    (4, 9, 1, 79),
+    (5, 9, 1, 88),
+    (9, 10, 1, NULL),
+    (6, 10, 2, 74),
+    (5, 11, 2, 86),
+    (2, 11, 2, 93),
+    (3, 12, 2, 93),
+    (2, 12, 1, 60),
+    (6, 12, 1, 82),
+    (5, 12, 1, 91),
+    (7, 13, 1, 77),
+    (10, 13, 1, 92),
+    (8, 14, 1, 79),
+    (9, 14, 2, 92),
+    (4, 15, 1, 85),
+    (6, 15, 1, 64),
+    (1, 15, 1, 78),
+    (9, 15, 1, 69),
+    (7, 16, 1, 60),
+    (5, 16, 1, 86),
+    (3, 16, 2, 59),
+    (10, 16, 1, 70),
+    (9, 17, 1, 87),
+    (1, 17, 1, 88),
+    (5, 17, 1, 70),
+    (2, 18, 1, 75),
+    (7, 18, 2, 54),
+    (5, 18, 1, NULL),
+    (8, 18, 1, 95),
+    (1, 19, 2, 35),
+    (3, 19, 1, 74),
+    (5, 19, 1, 90),
+    (6, 19, 2, 21),
+    (4, 20, 1, NULL),
+    (5, 20, 2, 77),
+    (10, 20, 2, 67),
+    (7, 20, 1, 70);
 
-INSERT INTO faculty_categories (staffID, categoryID) VALUES
-    (1, 1),
-    (2, 1),
-    (3, 2),
-    (4, 2),
-    (5, 3),
-    (6, 1);
+INSERT INTO faculty_categories (staffid, categoryid) VALUES
+    (3, 3),
+    (3, 1),
+    (5, 2),
+    (5, 1),
+    (8, 1),
+    (11, 2),
+    (11, 3),
+    (13, 1),
+    (13, 3),
+    (14, 3);
 

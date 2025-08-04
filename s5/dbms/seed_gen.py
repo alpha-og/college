@@ -302,40 +302,59 @@ def get_area_code_for_state(state):
         return random.choice(state_area_codes[state])
     return random.randint(40, 99)
 
-# create table function (unchanged)
 def create_table(table_name, columns, primary_key=None):
     columns_formatted = ""
     for column_name, column_info in columns.items():
         column_type = column_info["type"]
-        if "primary_key" in column_info:
-            column_type = f"{column_type} GENERATED ALWAYS AS IDENTITY PRIMARY KEY"
-        elif "foreign_key" in column_info:
-            foreign_key = column_info['foreign_key']['references'].split('.')
-            foreign_key = f"{foreign_key[0]} ({foreign_key[1]})"
-            column_type = f"{column_type} REFERENCES {foreign_key}"
+        
+        # Identity for single-column primary keys
+        if "primary_key" in column_info and len(primary_key or []) == 0:
+            column_type = f"{column_type} GENERATED ALWAYS AS IDENTITY"
+        
+        # Not null constraint
+        if "not_null" in column_info and column_info["not_null"]:
+            column_type += " NOT NULL"
 
+        # Unique constraint
+        if "unique" in column_info and column_info["unique"]:
+            column_type += " UNIQUE"
+            
         columns_formatted += f"\t{column_name} {column_type},\n"
 
+    # Add foreign key constraints separately for clarity and correctness
+    foreign_keys = []
+    for column_name, column_info in columns.items():
+        if "foreign_key" in column_info:
+            foreign_key_ref = column_info['foreign_key']['references'].split('.')
+            foreign_keys.append(f"\tFOREIGN KEY ({column_name}) REFERENCES {foreign_key_ref[0]} ({foreign_key_ref[1]}),")
+
     if primary_key:
-        columns_formatted = columns_formatted[:-1]
-        primary_key = f"\tPRIMARY KEY ({', '.join(primary_key)})"
-        template = f"""CREATE TABLE IF NOT EXISTS {table_name}(
-{columns_formatted}
-{primary_key}
-);"""
-    else:
-        columns_formatted = columns_formatted[:-2]
-        template = f"""CREATE TABLE IF NOT EXISTS {table_name}(
-{columns_formatted}
+        columns_formatted += f"\tPRIMARY KEY ({', '.join(primary_key)}),\n"
+    elif any(col.get("primary_key") for col in columns.values()):
+        columns_formatted += f"\tPRIMARY KEY ({[col for col, info in columns.items() if info.get('primary_key')][0]}),\n"
+
+    all_constraints = "".join(foreign_keys) + columns_formatted
+    # Remove trailing comma and newline
+    all_constraints = all_constraints.strip().rstrip(',')
+
+    template = f"""CREATE TABLE IF NOT EXISTS {table_name}(
+{all_constraints}
 );"""
     return template
 
 def generate_create_tables():
     queries = ""
-    for table_name, table_info in database_schema.items():
+    # Define a specific order for table creation to satisfy foreign key constraints
+    ordered_tables = [
+        "staff", "categories", "subjects", "buildings", "classrooms",
+        "students", "student_class_status", "faculty", "faculty_categories",
+        "faculty_subjects", "classes", "faculty_classes", "student_schedules"
+    ]
+    for table_name in ordered_tables:
+        table_info = database_schema[table_name]
         query = create_table(table_name, table_info["columns"], table_info.get("primary_key"))
-        queries  += f"{query}\n"
-    return queries  
+        queries += f"{query}\n"
+    return queries
 
 def generate_seed_queries(
     num_staff=8,
@@ -384,304 +403,409 @@ def generate_seed_queries(
         end = date.today() - timedelta(days=365 * end_years_ago)
         return start + timedelta(days=random.randint(0, (end - start).days))
 
-    # Enhanced Staff generation with better geographical cohesiveness
-    salaries = [4000, 8000, 12000, 20000, 30000, 15000, 25000, 18000]
+    # --- 1. Generate STAFF data and simulate IDs ---
     staff_data = []
+    staff_ids = []
     
-    # Select primary states to ensure Kerala and Tamil Nadu are included
     primary_states = ['Kerala', 'Tamil Nadu'] if ensure_kerala_tamilnadu else []
     other_states = [s for s in city_state_mapping.keys() if s not in primary_states]
     selected_states = primary_states + random.sample(other_states, min(num_staff - len(primary_states), len(other_states)))
     
-    # Generate shared zip code for the first staff member's state
-    shared_zip_state = selected_states[0] if selected_states else 'Kerala'
-    shared_zip = get_zip_for_state(shared_zip_state)
+    shared_zip = get_zip_for_state(selected_states[0] if selected_states else 'Kerala')
+    
+    salaries_for_query = [4000, 8000, 12000, 20000, 30000, 45000, 55000, 60000, 80000]
+    positions_for_query = ['Assistant Professor', 'Associate Professor', 'Professor', 'Lecturer']
     
     for i in range(num_staff):
-        # Select state ensuring Kerala and Tamil Nadu are first if required
-        if i < len(selected_states):
-            state = selected_states[i]
-        else:
-            state = random.choice(list(city_state_mapping.keys()))
+        staff_id = i + 1
+        staff_ids.append(staff_id)
         
+        state = selected_states[i] if i < len(selected_states) else random.choice(list(city_state_mapping.keys()))
         city = get_city_for_state(state)
         zipcode = shared_zip if ensure_shared_zip and i == 0 else get_zip_for_state(state)
         area_code = get_area_code_for_state(state)
         
-        salary = salaries[i % len(salaries)] if ensure_salary_cases else random.choice(salaries)
+        salary = random.choice(salaries_for_query)
+        position = random.choice(positions_for_query)
+
+        if i == 0:
+            salary = 4000
+        elif i == 1:
+            salary = 12000
+        if i > 1 and i % 3 == 0:
+            position = staff_data[0]['position'] if staff_data else random.choice(positions_for_query)
         
         staff_data.append({
-            "stfFirstName": random.choice(first_names),
-            "stfLastName": random.choice(last_names),
-            "stfStreetAdress": f"{random.randint(1, 100)} {random.choice(['Street', 'Road', 'Avenue', 'Lane'])}",
-            "stfCity": city,
-            "stfState": state,
-            "stfZipCode": zipcode,
-            "stfAreaCode": area_code,
-            "stfPhoneNumber": f"9{random.randint(100000000, 999999999)}",
-            "joiningDate": random_date(12, 1),
+            "staffid": staff_id, # Simulated ID
+            "stffirstname": random.choice(first_names),
+            "stflastname": random.choice(last_names),
+            "stfstreetadress": f"{random.randint(1, 100)} {random.choice(['Street', 'Road', 'Avenue', 'Lane'])}",
+            "stfcity": city,
+            "stfstate": state,
+            "stfzipcode": zipcode,
+            "stfareacode": area_code,
+            "stfphonenumber": f"9{random.randint(100000000, 999999999)}",
+            "joiningdate": random_date(12, 1),
             "salary": salary,
-            "position": random.choice(academic_positions)
+            "position": position
         })
+    
+    # Generate insert query for staff
+    staff_insert_data = [
+        {k: v for k, v in row.items() if k != 'staffid'} 
+        for row in staff_data
+    ]
+    queries += insert_query(
+        "staff", 
+        [k for k in staff_insert_data[0].keys()], 
+        staff_insert_data
+    )
 
-    # Enhanced Faculty generation with tenure considerations
+    # --- 2. Generate FACULTY data, referencing staff IDs ---
     faculty_data = []
-    for i in range(min(6, num_staff)):
-        # Ensure realistic tenure dates (faculty must be hired before tenure)
-        hire_date = staff_data[i]["joiningDate"]
+    faculty_staff_ids = sorted(random.sample(staff_ids, min(len(staff_ids), 6)))
+    for i, staff_id in enumerate(faculty_staff_ids):
+        # Find the joining date for this faculty from the staff data
+        staff_record = next(s for s in staff_data if s['staffid'] == staff_id)
+        hire_date = staff_record["joiningdate"]
+        
         if ensure_tenured:
-            # Tenure date should be after hire date by at least 2-6 years
-            tenure_years_after_hire = random.randint(2, 6)
-            tenured_date = hire_date + timedelta(days=365 * tenure_years_after_hire)
+            if i == 0:
+                tenure_date = hire_date + timedelta(days=365 * random.randint(2, 4))
+                if (date.today() - tenure_date).days < 365 * 6:
+                    tenure_date = date.today() - timedelta(days=365 * 6)
+            else:
+                tenure_date = random_date(5, 1)
         else:
-            tenured_date = random_date(3, 1)
+            tenure_date = random_date(3, 1)
         
         faculty_data.append({
-            "staffID": i + 1,
-            "title": random.choice(['Dr.', 'Mr.', 'Ms.', 'Prof.']),
-            "status": random.choice(['Full-time', 'Part-time', 'Visiting']),
-            "tenured": tenured_date
+            "staffid": staff_id,
+            "title": random.choice(['Dr.', 'Prof.']),
+            "status": random.choice(['Full-time', 'Part-time']),
+            "tenured": tenure_date
         })
+    
+    queries += insert_query(
+        "faculty", 
+        list(faculty_data[0].keys()), 
+        faculty_data
+    )
 
-    # Enhanced Categories with realistic academic departments
+    # --- 3. Generate CATEGORIES data and simulate IDs ---
     categories_data = []
-    category_names = list(academic_categories.keys())[:num_categories]
-    for i, category_name in enumerate(category_names):
+    category_ids = []
+    category_names = list(academic_categories.keys())
+    for i in range(num_categories):
+        category_id = i + 1
+        category_ids.append(category_id)
         categories_data.append({
-            "categoryDescription": category_name,
-            "departmentID": 100 + i + 1
+            "categoryid": category_id, # Simulated ID
+            "categorydescription": category_names[i],
+            "departmentid": 100 + i + 1
         })
-
-    # Enhanced Subjects with category-specific subjects
-    subjects_data = []
-    subject_id = 1
-    for i, (category_name, category_subjects) in enumerate(list(academic_categories.items())[:num_categories]):
-        # Distribute subjects across categories
-        subjects_per_category = num_subjects // num_categories
-        if i < num_subjects % num_categories:
-            subjects_per_category += 1
-        
-        selected_subjects = random.sample(category_subjects, min(subjects_per_category, len(category_subjects)))
-        
-        for j, subject_name in enumerate(selected_subjects):
-            # Ensure first subject contains 'a' for lab requirements
-            if ensure_subject_contains_a and subject_id == 1:
-                subject_name = "Data Analysis and Algorithms"
-            
-            subjects_data.append({
-                "categoryID": i + 1,
-                "subjectCode": 100 + subject_id,
-                "subjectName": subject_name
-            })
-            subject_id += 1
-
-    # Enhanced Faculty Subjects with realistic expertise patterns
-    faculty_subjects_data = []
-    for f in faculty_data:
-        # Faculty should teach subjects from their category
-        faculty_category = random.randint(1, num_categories)
-        
-        # Get subjects from faculty's category
-        category_subjects = [s for s in subjects_data if s["categoryID"] == faculty_category]
-        
-        # Ensure teacher subject count requirements
-        if ensure_teacher_subject_counts:
-            subject_count = random.choice([2, 3])  # Exactly 2 or 3 for lab queries
-        else:
-            subject_count = random.randint(1, min(3, len(category_subjects)))
-        
-        selected_subjects = random.sample(category_subjects, min(subject_count, len(category_subjects)))
-        
-        for subject in selected_subjects:
-            # Higher proficiency for subjects in faculty's expertise area
-            proficiency = random.randint(7, 10) if len(selected_subjects) <= 2 else random.randint(5, 8)
-            faculty_subjects_data.append({
-                "staffID": f["staffID"],
-                "subjectID": subject["subjectCode"] - 99,  # Convert back to subject ID
-                "proficiencyRating": proficiency
-            })
-
-    # Enhanced Buildings with realistic academic structure
-    buildings_data = [
-        {"buildingName": "Computer Science Block", "numberOfFloorts": 4},
-        {"buildingName": "Engineering Block", "numberOfFloorts": 5},
-        {"buildingName": "Mathematics Block", "numberOfFloorts": 3},
-        {"buildingName": "Laboratory Block", "numberOfFloorts": 2}
+    
+    category_insert_data = [
+        {k: v for k, v in row.items() if k != 'categoryid'}
+        for row in categories_data
     ]
+    queries += insert_query(
+        "categories",
+        list(category_insert_data[0].keys()),
+        category_insert_data
+    )
+    
+    # --- 4. Generate SUBJECTS data, referencing category IDs and simulating subject IDs ---
+    subjects_data = []
+    subject_ids = []
+    all_subjects = [sub for cat in academic_categories.values() for sub in cat]
+    
+    # Ensure one subject name contains 'a'
+    if ensure_subject_contains_a:
+        subject_with_a = random.choice([s for s in all_subjects if 'a' in s.lower()])
+        subjects_data.append({
+            "subjectid": 1,
+            "categoryid": random.choice(category_ids),
+            "subjectcode": 101,
+            "subjectname": subject_with_a
+        })
+        all_subjects.remove(subject_with_a)
+        subject_ids.append(1)
+    
+    for i in range(num_subjects - len(subjects_data)):
+        subject_id = len(subjects_data) + 1
+        subject_ids.append(subject_id)
+        subject = random.choice(all_subjects)
+        
+        subjects_data.append({
+            "subjectid": subject_id, # Simulated ID
+            "categoryid": random.choice(category_ids),
+            "subjectcode": 101 + i,
+            "subjectname": subject
+        })
+        all_subjects.remove(subject)
+        
+    subject_insert_data = [
+        {k: v for k, v in row.items() if k != 'subjectid'}
+        for row in subjects_data
+    ]
+    queries += insert_query(
+        "subjects",
+        list(subject_insert_data[0].keys()),
+        subject_insert_data
+    )
 
-    # Enhanced Classrooms with better distribution
-    classrooms_data = []
-    for i, building in enumerate(buildings_data):
-        # Multiple classrooms per building
-        for floor in range(1, min(building["numberOfFloorts"] + 1, 3)):  # Limit for data size
-            classrooms_data.append({
-                "buildingCode": i + 1,
-                "phoneAvailable": random.choice([True, False])
+    # --- 5. Generate FACULTY_SUBJECTS with varied subject counts ---
+    faculty_subjects_data = []
+    
+    # Ensure some faculty teach exactly 2 or 3 subjects
+    if ensure_teacher_subject_counts and len(faculty_data) >= 2 and len(subjects_data) >= 3:
+        # Faculty 1 teaches 2 subjects
+        subjects_to_assign = random.sample(subject_ids, 2)
+        for s_id in subjects_to_assign:
+            faculty_subjects_data.append({
+                "staffid": faculty_data[0]['staffid'],
+                "subjectid": s_id,
+                "proficiencyrating": random.randint(7, 10)
+            })
+        
+        # Faculty 2 teaches 3 subjects
+        subjects_to_assign = random.sample(subject_ids, 3)
+        for s_id in subjects_to_assign:
+            faculty_subjects_data.append({
+                "staffid": faculty_data[1]['staffid'],
+                "subjectid": s_id,
+                "proficiencyrating": random.randint(7, 10)
+            })
+    
+    # Assign subjects to other faculty with random counts
+    assigned_faculty_ids = [fs['staffid'] for fs in faculty_subjects_data]
+    for f in faculty_data:
+        if f['staffid'] in assigned_faculty_ids:
+            continue
+        
+        num_subjects_assigned = random.randint(1, min(3, len(subjects_data)))
+        subjects_to_assign = random.sample(subject_ids, num_subjects_assigned)
+        for s_id in subjects_to_assign:
+            faculty_subjects_data.append({
+                "staffid": f["staffid"],
+                "subjectid": s_id,
+                "proficiencyrating": random.randint(5, 10)
             })
 
-    # Enhanced Classes with realistic scheduling
+    queries += insert_query(
+        "faculty_subjects",
+        list(faculty_subjects_data[0].keys()),
+        faculty_subjects_data
+    )
+
+    # --- 6. Generate BUILDINGS and CLASSROOMS data with simulated IDs ---
+    buildings_data = [
+        {"buildingname": "Computer Science Block", "numberoffloorts": 4},
+        {"buildingname": "Engineering Block", "numberoffloorts": 5},
+        {"buildingname": "Mathematics Block", "numberoffloorts": 3}
+    ]
+    building_ids = [b + 1 for b in range(len(buildings_data))]
+    
+    buildings_insert_data = [
+        {k: v for k, v in row.items()}
+        for row in buildings_data
+    ]
+    queries += insert_query(
+        "buildings",
+        list(buildings_insert_data[0].keys()),
+        buildings_insert_data
+    )
+    
+    classrooms_data = []
+    classroom_ids = []
+    for i, building_id in enumerate(building_ids):
+        for floor in range(1, buildings_data[i]["numberoffloorts"] + 1):
+            classroom_id = len(classrooms_data) + 1
+            classroom_ids.append(classroom_id)
+            classrooms_data.append({
+                "classroomid": classroom_id, # Simulated ID
+                "buildingcode": building_id,
+                "phoneavailable": random.choice([True, False])
+            })
+            
+    classrooms_insert_data = [
+        {k: v for k, v in row.items() if k != 'classroomid'}
+        for row in classrooms_data
+    ]
+    queries += insert_query(
+        "classrooms",
+        list(classrooms_insert_data[0].keys()),
+        classrooms_insert_data
+    )
+
+    # --- 7. Generate CLASSES data, referencing subject and classroom IDs, and simulating class IDs ---
     classes_data = []
+    class_ids = []
     class_times = ["08:00:00", "09:30:00", "11:00:00", "14:00:00", "15:30:00"]
     durations = [30, 45, 60, 90]
     
-    for i in range(1, num_classes + 1):
-        # Ensure short duration for lab requirements
-        if ensure_class_duration_short and i == 1:
-            duration = 40
-        else:
-            duration = random.choice(durations)
+    for i in range(num_classes):
+        class_id = i + 1
+        class_ids.append(class_id)
         
+        duration = random.choice(durations)
+        if ensure_class_duration_short and i == 0:
+            duration = random.choice([25, 30, 40])
+            
         classes_data.append({
-            "subjectID": random.randint(1, len(subjects_data)),
-            "classroomID": random.randint(1, len(classrooms_data)),
-            "startTime": random.choice(class_times),
+            "classid": class_id, # Simulated ID
+            "subjectid": random.choice(subject_ids),
+            "classroomid": random.choice(classroom_ids),
+            "starttime": random.choice(class_times),
             "duration": duration
         })
-
-    # Enhanced Faculty Classes with realistic teaching loads
-    faculty_classes_data = []
-    for f in faculty_data:
-        # Faculty should teach 1-3 classes based on their status
-        if f["status"] == "Full-time":
-            class_count = random.randint(2, 3)
-        else:
-            class_count = random.randint(1, 2)
-        
-        assigned_classes = random.sample(range(1, num_classes + 1), min(class_count, num_classes))
-        for class_id in assigned_classes:
-            faculty_classes_data.append({
-                "staffID": f["staffID"],
-                "classID": class_id
-            })
-
-    # Enhanced Students with geographical diversity
-    students_data = []
-    student_states = random.sample(list(city_state_mapping.keys()), min(len(city_state_mapping), num_students // 2))
     
+    classes_insert_data = [
+        {k: v for k, v in row.items() if k != 'classid'}
+        for row in classes_data
+    ]
+    queries += insert_query(
+        "classes",
+        list(classes_insert_data[0].keys()),
+        classes_insert_data
+    )
+
+    # --- 8. Generate FACULTY_CLASSES data (many-to-many relationship) ---
+    faculty_classes_data = []
+    for staff_id in faculty_staff_ids:
+        assigned_classes = random.sample(class_ids, random.randint(1, min(3, len(class_ids))))
+        for class_id in assigned_classes:
+            faculty_classes_data.append({"staffid": staff_id, "classid": class_id})
+
+    queries += insert_query(
+        "faculty_classes",
+        list(faculty_classes_data[0].keys()),
+        faculty_classes_data
+    )
+    
+    # --- 9. Generate STUDENTS data with a shared zip code and phone number pattern and simulated IDs ---
+    students_data = []
+    student_ids = []
     for i in range(num_students):
-        state = student_states[i % len(student_states)]
+        student_id = i + 1
+        student_ids.append(student_id)
+        
+        state = random.choice(list(city_state_mapping.keys()))
         city = get_city_for_state(state)
         zipcode = shared_zip if ensure_shared_zip and i == 0 else get_zip_for_state(state)
         area_code = get_area_code_for_state(state)
         
-        # Ensure phone number starting with '95' for lab requirements
         if ensure_student_phone_95 and i == 0:
             phone = f"95{random.randint(10000000, 99999999)}"
         else:
             phone = f"9{random.randint(100000000, 999999999)}"
-        
+            
         students_data.append({
-            "studFirstName": random.choice(first_names),
-            "studLastName": random.choice(last_names),
-            "studStreetAdress": f"{random.randint(10, 99)} {random.choice(['Lane', 'Street', 'Road', 'Colony'])}",
-            "studCity": city,
-            "studState": state,
-            "studZipCode": zipcode,
-            "studAreaCode": area_code,
-            "studPhoneNumber": phone
+            "studentid": student_id, # Simulated ID
+            "studfirstname": random.choice(first_names),
+            "studlastname": random.choice(last_names),
+            "studstreetadress": f"{random.randint(10, 99)} {random.choice(['Lane', 'Street', 'Road', 'Colony'])}",
+            "studcity": city,
+            "studstate": state,
+            "studzipcode": zipcode,
+            "studareacode": area_code,
+            "studphonenumber": phone
         })
-
-    # Student Class Status (unchanged)
-    student_class_status_data = [
-        {"classDescription": "Enrolled"},
-        {"classDescription": "Completed"},
-        {"classDescription": "Dropped"},
-        {"classDescription": "Withdrawn"}
+    
+    students_insert_data = [
+        {k: v for k, v in row.items() if k != 'studentid'}
+        for row in students_data
     ]
+    queries += insert_query(
+        "students",
+        list(students_insert_data[0].keys()),
+        students_insert_data
+    )
 
-    # Enhanced Student Schedules with realistic grade distribution
+    # --- 10. Generate STUDENT_CLASS_STATUS and STUDENT_SCHEDULES with simulated IDs and varied grades ---
+    student_class_status_data = [
+        {"classdescription": "Enrolled"},
+        {"classdescription": "Completed"},
+        {"classdescription": "Dropped"},
+        {"classdescription": "Withdrawn"}
+    ]
+    queries += insert_query(
+        "student_class_status",
+        list(student_class_status_data[0].keys()),
+        student_class_status_data
+    )
+    
     student_schedules_data = []
-    for s_id in range(1, num_students + 1):
-        # Students typically enroll in 2-4 classes
-        enrolled_classes = random.sample(range(1, num_classes + 1), random.randint(2, min(4, num_classes)))
-        
+    pass_grade_threshold = 50 
+    
+    for s_id in student_ids:
+        enrolled_classes = random.sample(class_ids, random.randint(2, min(4, len(class_ids))))
         for class_id in enrolled_classes:
-            # Most students are enrolled, some completed, few dropped
-            status_weights = [70, 25, 5]  # Enrolled, Completed, Dropped
-            status = random.choices([1, 2, 3], weights=status_weights)[0]
-            
-            # Grade distribution based on status
-            if status == 1:  # Enrolled - no grade yet or mid-term grade
-                grade = random.randint(60, 85) if random.random() < 0.3 else None
-            elif status == 2:  # Completed - full grade range
-                grade = random.randint(50, 95)
-            else:  # Dropped - lower grade or no grade
+            status = random.choices([1, 2, 3], weights=[70, 25, 5])[0]
+            grade = None
+            if status == 1:
+                grade = random.randint(60, 95) if random.random() < 0.8 else None
+            elif status == 2:
+                if random.random() < 0.7:
+                    grade = random.randint(pass_grade_threshold, 100)
+                else:
+                    grade = random.randint(0, pass_grade_threshold - 1)
+            else:
                 grade = random.randint(30, 60) if random.random() < 0.5 else None
-            
-            if grade is not None:
-                student_schedules_data.append({
-                    "classID": class_id,
-                    "studentID": s_id,
-                    "classStatus": status,
-                    "grade": grade
-                })
-
-    # Enhanced Faculty Categories with logical assignments
-    faculty_categories_data = []
-    for f in faculty_data:
-        # Assign faculty to 1-2 categories based on their expertise
-        num_categories_assigned = random.randint(1, min(2, num_categories))
-        assigned_categories = random.sample(range(1, num_categories + 1), num_categories_assigned)
-        
-        for category_id in assigned_categories:
-            faculty_categories_data.append({
-                "staffID": f["staffID"],
-                "categoryID": category_id
+                
+            student_schedules_data.append({
+                "classid": class_id,
+                "studentid": s_id,
+                "classstatus": status,
+                "grade": grade
             })
 
-    # Generate all insert queries
-    table_data_map = {
-        "staff": (list(staff_data[0].keys()), staff_data),
-        "faculty": (list(faculty_data[0].keys()), faculty_data),
-        "categories": (list(categories_data[0].keys()), categories_data),
-        "subjects": (list(subjects_data[0].keys()), subjects_data),
-        "faculty_subjects": (list(faculty_subjects_data[0].keys()), faculty_subjects_data),
-        "buildings": (list(buildings_data[0].keys()), buildings_data),
-        "classrooms": (list(classrooms_data[0].keys()), classrooms_data),
-        "classes": (list(classes_data[0].keys()), classes_data),
-        "faculty_classes": (list(faculty_classes_data[0].keys()), faculty_classes_data),
-        "students": (list(students_data[0].keys()), students_data),
-        "student_class_status": (list(student_class_status_data[0].keys()), student_class_status_data),
-        "student_schedules": (list(student_schedules_data[0].keys()) if student_schedules_data else ["classID", "studentID", "classStatus", "grade"], student_schedules_data),
-        "faculty_categories": (list(faculty_categories_data[0].keys()), faculty_categories_data),
-    }
+    queries += insert_query(
+        "student_schedules",
+        list(student_schedules_data[0].keys()),
+        student_schedules_data
+    )
 
-    for table, (columns, data) in table_data_map.items():
-        queries += insert_query(table, columns, data)
+    # --- 11. Generate FACULTY_CATEGORIES data (many-to-many relationship) ---
+    faculty_categories_data = []
+    for staff_id in faculty_staff_ids:
+        num_categories_assigned = random.randint(1, min(2, num_categories))
+        assigned_categories = random.sample(category_ids, num_categories_assigned)
+        for category_id in assigned_categories:
+            faculty_categories_data.append({
+                "staffid": staff_id,
+                "categoryid": category_id
+            })
+
+    queries += insert_query(
+        "faculty_categories",
+        list(faculty_categories_data[0].keys()),
+        faculty_categories_data
+    )
 
     return queries
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate SQL seed data for DB schema with improved cohesiveness.")
-    
-    # Matching defaults with generate_seed_queries()
     parser.add_argument("--seed", type=int, default=None, help="Random seed for reproducible data generation")
     parser.add_argument("--output", type=str, default="seed.sql", help="Output SQL file name")
-    parser.add_argument("--num_staff", type=int, default=8, help="Number of staff members to generate")
-    parser.add_argument("--num_students", type=int, default=10, help="Number of students to generate")
+    parser.add_argument("--num_staff", type=int, default=15, help="Number of staff members to generate")
+    parser.add_argument("--num_students", type=int, default=20, help="Number of students to generate")
     parser.add_argument("--num_categories", type=int, default=3, help="Number of academic categories")
-    parser.add_argument("--num_subjects", type=int, default=6, help="Number of subjects")
-    parser.add_argument("--num_classes", type=int, default=5, help="Number of classes")
+    parser.add_argument("--num_subjects", type=int, default=10, help="Number of subjects")
+    parser.add_argument("--num_classes", type=int, default=10, help="Number of classes")
 
-    # Boolean feature flags (defaults match the function)
-    parser.add_argument("--ensure_kerala_tamilnadu", type=lambda s: s.lower() in ['true', '1'], default=True, 
-                       help="Ensure Kerala and Tamil Nadu states are included")
-    parser.add_argument("--ensure_salary_cases", type=lambda s: s.lower() in ['true', '1'], default=True,
-                       help="Ensure diverse salary ranges for testing")
-    parser.add_argument("--ensure_tenured", type=lambda s: s.lower() in ['true', '1'], default=True,
-                       help="Ensure realistic tenure dates")
-    parser.add_argument("--ensure_subject_contains_a", type=lambda s: s.lower() in ['true', '1'], default=True,
-                       help="Ensure at least one subject contains 'a'")
-    parser.add_argument("--ensure_student_phone_95", type=lambda s: s.lower() in ['true', '1'], default=True,
-                       help="Ensure at least one student phone starts with '95'")
-    parser.add_argument("--ensure_class_duration_short", type=lambda s: s.lower() in ['true', '1'], default=True,
-                       help="Ensure at least one class with duration < 45 minutes")
-    parser.add_argument("--ensure_shared_zip", type=lambda s: s.lower() in ['true', '1'], default=True,
-                       help="Ensure some shared zip codes between staff and students")
-    parser.add_argument("--ensure_teacher_subject_counts", type=lambda s: s.lower() in ['true', '1'], default=True,
-                       help="Ensure teachers teach 2-3 subjects for count queries")
-
-    args = parser.parse_args() 
+    parser.add_argument("--ensure_kerala_tamilnadu", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure Kerala and Tamil Nadu states are included")
+    parser.add_argument("--ensure_salary_cases", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure diverse salary ranges for testing")
+    parser.add_argument("--ensure_tenured", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure realistic tenure dates")
+    parser.add_argument("--ensure_subject_contains_a", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure at least one subject contains 'a'")
+    parser.add_argument("--ensure_student_phone_95", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure at least one student phone starts with '95'")
+    parser.add_argument("--ensure_class_duration_short", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure at least one class with duration < 45 minutes")
+    parser.add_argument("--ensure_shared_zip", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure some shared zip codes between staff and students")
+    parser.add_argument("--ensure_teacher_subject_counts", type=lambda s: s.lower() in ['true', '1'], default=True, help="Ensure teachers teach 2-3 subjects for count queries")
+    
+    args = parser.parse_args()
     
     print(f"- Staff members: {args.num_staff}")
     print(f"- Students: {args.num_students}")
@@ -689,7 +813,7 @@ if __name__ == "__main__":
     print(f"- Subjects: {args.num_subjects}")
     print(f"- Classes: {args.num_classes}")
     
-    create_table_queries = generate_create_tables()  
+    create_table_queries = generate_create_tables()
     seed_queries = generate_seed_queries(
         num_staff=args.num_staff,
         num_students=args.num_students,
