@@ -1,0 +1,79 @@
+% ©JIL VARGHESE PALLIYAN S5 CS2
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{array}
+\usepackage{afterpage}
+
+\geometry{a4paper, left=0.75in, right=0.75in, top=0.65in, bottom=0.25in}
+\pagestyle{empty}
+\pagenumbering{gobble}
+
+% Define the border and header drawing command
+\newcommand\PageBorder{%
+  \begin{tikzpicture}[remember picture,overlay]
+    % Date Label (top left)
+    \node[anchor=north west, font=\large] 
+      at ([xshift=0.75in,yshift=-0.25in]current page.north west) {Date:\hspace{3cm}};
+    % Page No Label (top right)
+    \node[anchor=north east, font=\large] 
+      at ([xshift=-1.25in,yshift=-0.25in]current page.north east) {Page No:\hspace{2.5cm}};
+  \end{tikzpicture}% % <-- pushes text down
+}
+\AddToShipoutPicture{\PageBorder}
+
+%dont edit anything above............
+
+
+\begin{document}
+\section*{\centering{Cycle 1}}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{1.png} % Replace with the fig in the cycle
+    \label{fig:schema}
+\end{figure}
+\subsection*{1.  Design the ER diagram from the given schema.}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.75\textwidth]{122.png} %er diagram image
+    \label{fig:schema}
+\end{figure}
+\\
+\newpage
+\subsection*{2. Create the database with proper tables, columns, column types and \\
+constraints.}
+
+\subsubsection*{Staff Table}
+Query:
+\begin{Verbatim}[frame=single,framerule=1pt,fontfamily=courier,fontsize=\small]
+CREATE TABLE STAFF(
+StaffID INT NOT NULL PRIMARY KEY,
+StfFirstName VARCHAR(30) NOT NULL,
+StfLastName VARCHAR(30) NOT NULL,
+StfStreetAddress VARCHAR(30),
+StfCity VARCHAR(30),
+StfState VARCHAR(30),
+StfZipCode VARCHAR(30),
+StfAreaCode VARCHAR(30),
+StfPhoneNumber VARCHAR(30),
+DateHired DATE,
+Salary FLOAT,
+Position VARCHAR(30));
+\end{Verbatim}%copy paste and format the query
+\begin{figure}[h] %output screenshot along with the studentid
+    \centering
+    \includegraphics[width=\textwidth]{2.1.png}
+\end{figure}
+
+
+
+
+
+\end{document}

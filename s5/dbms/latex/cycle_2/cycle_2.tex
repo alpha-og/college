@@ -1,0 +1,315 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{fancyvrb}
+\usepackage{multicol}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{array}
+\usepackage{afterpage}
+
+\geometry{a4paper, left=0.75in, right=0.75in, top=0.65in, bottom=0.25in}
+\pagestyle{empty}
+\pagenumbering{gobble}
+
+% Define the border and header drawing command
+\newcommand\PageBorder{%
+  \begin{tikzpicture}[remember picture,overlay]
+    % Date Label (top left)
+    \node[anchor=north west, font=\large] 
+      at ([xshift=0.75in,yshift=-0.25in]current page.north west) {Date:\hspace{3cm}};
+    % Page No Label (top right)
+    \node[anchor=north east, font=\large] 
+      at ([xshift=-1.25in,yshift=-0.25in]current page.north east) {Page No:\hspace{2.5cm}};
+  \end{tikzpicture}% % <-- pushes text down
+}
+\AddToShipoutPicture{\PageBorder}
+
+%dont edit anything above............
+
+
+\begin{document}
+\section*{\centering{Cycle 1}}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.95\textwidth]{1.png} % Replace with the fig in the cycle
+    \label{fig:schema}
+\end{figure}
+\subsection*{1. Insert data in the created database.}
+Query:
+\begin{Verbatim}[frame=single,framerule=1pt,fontfamily=courier,fontsize=\small]
+INSERT INTO staff (stffirstname, stflastname, stfstreetadress, stfcity, stfstate, stfzipcode, stfareacode, stfphonenumber, joiningdate, salary, position) VALUES
+    ('Meera', 'Warrier', '99 Street', 'Palakkad', 'Kerala', 681537, 471, '9847144854', '2018-08-04', 4000, 'Lecturer'),
+    ('Bob', 'Babu', '4 Street', 'Tirunelveli', 'Tamil Nadu', 614992, 431, '9509314931', '2021-04-17', 12000, 'Professor'),
+    ('Yash', 'Choudhary', '64 Road', 'Hyderabad', 'Telangana', 506915, 878, '9471192992', '2016-03-08', 4000, 'Associate Professor'),
+    ('Anita', 'Prasad', '72 Street', 'Muzaffarpur', 'Bihar', 814338, 641, '9299615329', '2020-08-26', 30000, 'Lecturer'),
+    ('Varun', 'Thakur', '65 Lane', 'Manali', 'Himachal Pradesh', 177044, 186, '9645157245', '2022-11-26', 8000, 'Professor'),
+    ('Gita', 'Zaman', '76 Street', 'Panipat', 'Haryana', 126220, 130, '9615639791', '2016-04-26', 30000, 'Lecturer'),
+    ('Jatin', 'Singh', '100 Avenue', 'Solapur', 'Maharashtra', 426495, 240, '9192843870', '2018-07-08', 12000, 'Lecturer'),
+    ('Xander', 'Fazal', '94 Street', 'Silchar', 'Assam', 788330, 361, '9603928666', '2014-01-31', 12000, 'Lecturer'),
+    ('Alice', 'Zehra', '26 Road', 'Vadodara', 'Gujarat', 385794, 265, '9534280104', '2019-05-11', 12000, 'Associate Professor'),
+    ('Rohit', 'Joshi', '78 Street', 'Udaipur', 'Rajasthan', 337866, 151, '9511983601', '2022-05-20', 60000, 'Lecturer'),
+    ('Brian', 'Dinesh', '62 Avenue', 'Ghaziabad', 'Uttar Pradesh', 267174, 522, '9712032126', '2019-10-24', 80000, 'Associate Professor'),
+    ('Anita', 'Wadhwa', '1 Avenue', 'Guntur', 'Andhra Pradesh', 533077, 877, '9591931376', '2020-04-28', 60000, 'Professor'),
+    ('Frank', 'Sharma', '71 Avenue', 'Kolkata', 'West Bengal', 715047, 341, '9134852725', '2023-01-13', 80000, 'Lecturer'),
+    ('Alice', 'Warrier', '97 Avenue', 'Jalandhar', 'Punjab', 142308, 161, '9367962176', '2016-08-10', 4000, 'Lecturer'),
+    ('Eve', 'Kapoor', '21 Avenue', 'Dehradun', 'Uttarakhand', 260473, 135, '9666270385', '2024-04-09', 45000, 'Professor');
+
+INSERT INTO faculty (staffid, title, status, tenured) VALUES
+    (3, 'Prof.', 'Part-time', '2019-08-05'),
+    (5, 'Dr.', 'Full-time', '2023-04-01'),
+    (8, 'Prof.', 'Part-time', '2022-05-04'),
+    (11, 'Dr.', 'Part-time', '2022-12-14'),
+    (13, 'Prof.', 'Full-time', '2021-03-14'),
+    (14, 'Prof.', 'Full-time', '2023-12-27');
+
+INSERT INTO categories (categorydescription, departmentid) VALUES
+    ('Computer Science', 101),
+    ('Mathematics', 102),
+    ('Electronics', 103);
+
+INSERT INTO subjects (categoryid, subjectcode, subjectname) VALUES
+    (1, 101, 'Digital Logic Design'),
+    (1, 101, 'Mobile Computing'),
+    (3, 102, 'Computer Networks'),
+    (2, 103, 'Software Engineering'),
+    (3, 104, 'VLSI Design'),
+    (2, 105, 'Analog Electronics'),
+    (1, 106, 'Mathematical Modeling'),
+    (3, 107, 'Signal Processing'),
+    (2, 108, 'Numerical Analysis'),
+    (3, 109, 'Computer Graphics');
+
+INSERT INTO faculty_subjects (staffid, subjectid, proficiencyrating) VALUES
+    (3, 1, 9),
+    (3, 7, 10),
+    (5, 1, 8),
+    (5, 5, 7),
+    (5, 3, 9),
+    (8, 2, 7),
+    (11, 3, 9),
+    (11, 7, 7),
+    (13, 1, 9),
+    (14, 10, 6);
+
+INSERT INTO buildings (buildingname, numberoffloorts) VALUES
+    ('Computer Science Block', 4),
+    ('Engineering Block', 5),
+    ('Mathematics Block', 3);
+
+INSERT INTO classrooms (buildingcode, phoneavailable) VALUES
+    (1, FALSE),
+    (1, TRUE),
+    (1, TRUE),
+    (1, FALSE),
+    (2, TRUE),
+    (2, FALSE),
+    (2, TRUE),
+    (2, TRUE),
+    (2, FALSE),
+    (3, TRUE),
+    (3, FALSE),
+    (3, TRUE);
+
+INSERT INTO classes (subjectid, classroomid, starttime, duration) VALUES
+    (9, 8, '08:00:00', 30),
+    (10, 7, '11:00:00', 60),
+    (3, 4, '11:00:00', 30),
+    (6, 7, '09:30:00', 45),
+    (2, 7, '15:30:00', 60),
+    (9, 8, '15:30:00', 60),
+    (2, 12, '08:00:00', 45),
+    (3, 3, '09:30:00', 30),
+    (5, 6, '15:30:00', 45),
+    (6, 6, '11:00:00', 60);
+
+INSERT INTO faculty_classes (staffid, classid) VALUES
+    (3, 5),
+    (5, 10),
+    (8, 8),
+    (8, 3),
+    (8, 2),
+    (11, 1),
+    (11, 7),
+    (13, 7),
+    (14, 3);
+
+INSERT INTO students (studfirstname, studlastname, studstreetadress, studcity, studstate, studzipcode, studareacode, studphonenumber) VALUES
+    ('Arjun', 'Yadav', '19 Street', 'Lucknow', 'Uttar Pradesh', 681537, 581, '9588840556'),
+    ('Indu', 'Hussain', '68 Road', 'Mangalore', 'Karnataka', 571956, 824, '9706070170'),
+    ('Rohit', 'Antony', '21 Colony', 'Mumbai', 'Maharashtra', 419381, 20, '9758930577'),
+    ('Lakshman', 'Aggarwal', '30 Lane', 'Mumbai', 'Maharashtra', 412315, 22, '9943437224'),
+    ('Grace', 'Bhatt', '58 Road', 'Gurgaon', 'Haryana', 127910, 129, '9898870802'),
+    ('Nina', 'Patel', '50 Lane', 'Dibrugarh', 'Assam', 787815, 373, '9207512855'),
+    ('Meera', 'Upadhyay', '67 Colony', 'Kochi', 'Kerala', 692891, 487, '9880055967'),
+    ('Meera', 'Deshmukh', '24 Road', 'Varanasi', 'Uttar Pradesh', 208252, 512, '9440751465'),
+    ('Rohit', 'Wadhwa', '43 Street', 'Nizamabad', 'Telangana', 508895, 878, '9603499126'),
+    ('Xander', 'Fernandez', '45 Lane', 'Guwahati', 'Assam', 785035, 366, '9364549795'),
+    ('Tina', 'Chacko', '51 Street', 'Gurgaon', 'Haryana', 131104, 129, '9519273144'),
+    ('Grace', 'Inamdar', '88 Lane', 'Noida', 'Uttar Pradesh', 239689, 522, '9458987767'),
+    ('Eve', 'Reddy', '80 Lane', 'Kolkata', 'West Bengal', 701335, 341, '9531401177'),
+    ('Yash', 'Kumar', '55 Colony', 'Bangalore', 'Karnataka', 580820, 80, '9412267262'),
+    ('Arjun', 'Upadhyay', '19 Street', 'Shimla', 'Himachal Pradesh', 170826, 189, '9935098308'),
+    ('Grace', 'Thakur', '75 Road', 'Guntur', 'Andhra Pradesh', 509275, 866, '9428160067'),
+    ('Uma', 'Devi', '89 Street', 'Delhi', 'Delhi', 110018, 11, '9937243152'),
+    ('Usha', 'Quazi', '41 Road', 'Visakhapatnam', 'Andhra Pradesh', 528353, 863, '9152139612'),
+    ('Brian', 'Joshi', '42 Colony', 'Davangere', 'Karnataka', 591568, 831, '9967854655'),
+    ('Victor', 'Kapoor', '43 Colony', 'Dibrugarh', 'Assam', 780178, 376, '9997960631');
+
+INSERT INTO student_class_status (classdescription) VALUES
+    ('Enrolled'),
+    ('Completed'),
+    ('Dropped'),
+    ('Withdrawn');
+
+INSERT INTO student_schedules (classid, studentid, classstatus, grade) VALUES
+    (7, 1, 1, 68),
+    (1, 1, 1, 77),
+    (10, 2, 1, 60),
+    (7, 2, 1, 88),
+    (3, 2, 2, 64),
+    (6, 3, 1, NULL),
+    (8, 3, 2, 89),
+    (5, 4, 2, 73),
+    (4, 4, 1, 73),
+    (1, 4, 1, 95),
+    (8, 4, 1, 89),
+    (2, 5, 1, 63),
+    (10, 5, 1, 82),
+    (7, 5, 1, NULL),
+    (9, 5, 1, NULL),
+    (2, 6, 2, 58),
+    (5, 6, 3, NULL),
+    (10, 6, 3, NULL),
+    (3, 6, 1, NULL),
+    (7, 7, 1, NULL),
+    (10, 7, 1, 91),
+    (2, 8, 1, 67),
+    (7, 8, 1, 84),
+    (9, 9, 1, 75),
+    (1, 9, 2, 68),
+    (4, 9, 1, 79),
+    (5, 9, 1, 88),
+    (9, 10, 1, NULL),
+    (6, 10, 2, 74),
+    (5, 11, 2, 86),
+    (2, 11, 2, 93),
+    (3, 12, 2, 93),
+    (2, 12, 1, 60),
+    (6, 12, 1, 82),
+    (5, 12, 1, 91),
+    (7, 13, 1, 77),
+    (10, 13, 1, 92),
+    (8, 14, 1, 79),
+    (9, 14, 2, 92),
+    (4, 15, 1, 85),
+    (6, 15, 1, 64),
+    (1, 15, 1, 78),
+    (9, 15, 1, 69),
+    (7, 16, 1, 60),
+    (5, 16, 1, 86),
+    (3, 16, 2, 59),
+    (10, 16, 1, 70),
+    (9, 17, 1, 87),
+    (1, 17, 1, 88),
+    (5, 17, 1, 70),
+    (2, 18, 1, 75),
+    (7, 18, 2, 54),
+    (5, 18, 1, NULL),
+    (8, 18, 1, 95),
+    (1, 19, 2, 35),
+    (3, 19, 1, 74),
+    (5, 19, 1, 90),
+    (6, 19, 2, 21),
+    (4, 20, 1, NULL),
+    (5, 20, 2, 77),
+    (10, 20, 2, 67),
+    (7, 20, 1, 70);
+
+INSERT INTO faculty_categories (staffid, categoryid) VALUES
+    (3, 3),
+    (3, 1),
+    (5, 2),
+    (5, 1),
+    (8, 1),
+    (11, 2),
+    (11, 3),
+    (13, 1),
+    (13, 3),
+    (14, 3);
+
+\end{Verbatim}
+\newpage
+\subsection*{2. Display the list of faculties who have more than 5 year tenure period.}
+
+\subsubsection*{Query 1: Staff with More than 5 Years Difference between Tenure and Joining Date}
+Query:
+\begin{Verbatim}[frame=single,framerule=1pt,fontfamily=courier,fontsize=\small]
+SELECT * 
+FROM staff, faculty 
+WHERE staff.staffid = faculty.staffid 
+  AND EXTRACT(ISOYEAR FROM DATE (tenured)) 
+    - EXTRACT(ISOYEAR FROM DATE (joiningdate)) > 5;
+\end{Verbatim}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./o-2.png}
+\end{figure}
+
+\subsubsection*{Query 2: Remaining Tenure for Faculty}
+Query:
+\begin{Verbatim}[frame=single,framerule=1pt,fontfamily=courier,fontsize=\small]
+SELECT staff.staffid, 
+       (tenured - CURRENT_DATE)/365 AS "Remaining Tenure", 
+       tenured 
+FROM staff, faculty 
+WHERE staff.staffid = faculty.staffid;
+\end{Verbatim}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./o_3.png}
+\end{figure}
+
+\subsubsection*{Query 3: Staff with Salary Between 10000 and 50000}
+Query:
+\begin{Verbatim}[frame=single,framerule=1pt,fontfamily=courier,fontsize=\small]
+SELECT * 
+FROM staff 
+WHERE salary BETWEEN 10000 AND 50000;
+\end{Verbatim}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./o_4.png}
+\end{figure}
+
+\subsubsection*{Query 4: Number of Staff per Position}
+Query:
+\begin{Verbatim}[frame=single,framerule=1pt,fontfamily=courier,fontsize=\small]
+SELECT position, COUNT(*) 
+FROM staff 
+GROUP BY position;
+\end{Verbatim}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./o_5.png}
+\end{figure}
+
+\subsubsection*{Query 5: Number of Staff per Area Code}
+Query:
+\begin{Verbatim}[frame=single,framerule=1pt,fontfamily=courier,fontsize=\small]
+SELECT stfareacode, COUNT(*) 
+FROM staff 
+GROUP BY stfareacode;
+\end{Verbatim}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\textwidth]{./o_6.png}
+\end{figure}
+
+
+
+
+\end{document}
