@@ -1,14 +1,13 @@
 -- 1. a) Revoke insert privilege for a user on table Students and check whether you are able to insert a row in to the table
 --    b) Grant the permission to the user for inserting values in to students table and check whether insertion is possible or not
 REVOKE INSERT ON students FROM s23b25;
-INSERT INTO students (studfirstname, studlastname, studstreetadress, studcity, studstate, studzipcode, studareacode, studphonenumber) VALUES
-    ('Vijay', 'Kumar', 'elm Street', 'Lucknow', 'Uttar Pradesh', 861537, 851, '5988804556');
+INSERT INTO students (studfirstname, studlastname, studstreetadress, studcity, studstate, studzipcode, studareacode, studphonenumber) VALUES ('Vijay', 'Kumar', 'elm Street', 'Lucknow', 'Uttar Pradesh', 861537, 851, '5988804556');
 GRANT INSERT ON students TO s23b25;
 
 
 -- 2. a) Start a new transaction and insert a row into the Staff table. Commit the transaction and display the changes to the table
 -- b) Start a new transaction and insert a row into the Staff table.Undo the transaction and display the changes to the table
--- START TRANSACTION
+START TRANSACTION;
 INSERT INTO staff (	
 	stfFirstName,	
 	stfLastName,	
@@ -24,7 +23,7 @@ INSERT INTO staff (
 ) VALUES ('Ajay', 'Kumar', 'elm street', 'Chennai', 'Tamilnadu', 618800, 02, '1234567790', '2024-06-17', 70000, 'Professor');
 COMMIT;
 
-START TRANSACTION
+START TRANSACTION;
 INSERT INTO staff (	
 	stfFirstName,	
 	stfLastName,	

@@ -13,8 +13,8 @@ DO $$
 DECLARE
   count NUMERIC;
 BEGIN
-  SELECT count(*) INTO count FROM classroom;
-  ASSERT count > 0, 'Classroom table is empty';
+  SELECT count(*) INTO count FROM classrooms;
+  ASSERT count > 0, 'Classrooms table is empty';
 END $$;
 
 -- 3. Write a PL/SQL block to do the following:

@@ -35,13 +35,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER restrict_trigger
 BEFORE DELETE OR UPDATE OR INSERT
 ON students
 FOR EACH ROW
-  EXECUTE FUNCTION restrict()
+  EXECUTE FUNCTION restrict();
 
 -- 3. Write a trigger on Staff table such that updation is not possible if new salary
 -- is greater than old salary
@@ -53,13 +53,13 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql
+$$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER salary_restrict_trigger
 BEFORE UPDATE
 ON staff
 FOR EACH ROW
-  EXECUTE FUNCTION salary_restrict()
+  EXECUTE FUNCTION salary_restrict();
 
 -- Cursors:
 
@@ -67,7 +67,7 @@ FOR EACH ROW
 -- city
 DO $$
   DECLARE
-    city TEXT := 'Trivandrum';
+    city TEXT := 'Chennai';
     rec RECORD;
   BEGIN
     RAISE NOTICE 'Staff living in %', city;
@@ -76,15 +76,14 @@ DO $$
       WHERE stfcity = city
     LOOP
       RAISE NOTICE 'ID: %, Name: %, Salary: %, City: %', rec.staffid, rec.stffirstname || ' ' || rec.stflastname, rec.salary, rec.stfcity;
-    END LOOP
-  END;
-$$
+    END LOOP;
+END $$;
 
 -- 2. Using parameterized cursors list the name of staff who work in the same
 -- department in which ‘xyz’ works
 DO $$
   DECLARE
-    dept TEXT ;
+    dept BIGINT;
     rec RECORD;
   BEGIN
     SELECT c.departmentid INTO dept
@@ -92,9 +91,9 @@ DO $$
     JOIN faculty_subjects fs ON s.staffid = fs.staffid
     JOIN subjects sub ON fs.subjectid = sub.subjectid
     JOIN categories c ON sub.categoryid = c.categoryid
-    WHERE s.stffirstname = 'Arathi';
+    WHERE s.stffirstname = 'Yash';
 
-    RAISE NOTICE 'Staff in the same department as Arathi';
+    RAISE NOTICE 'Staff in the same department as Yash';
 
     FOR rec IN 
       SELECT s.stffirstname, s.stflastname
@@ -102,12 +101,11 @@ DO $$
       JOIN faculty_subjects fs ON s.staffid = fs.staffid
       JOIN subjects sub ON fs.subjectid = sub.subjectid
       JOIN categories c ON sub.categoryid = c.categoryid
-      WHERE c.departmentid = dept AND s.staffirstname <> 'Arathi'
+      WHERE c.departmentid = dept AND s.stffirstname <> 'Yash'
     LOOP
       RAISE NOTICE '% %', rec.stffirstname, rec.stflastname;
     END LOOP;
-  END;
-$$
+END $$;
 
 -- 3. Write a PL/SQL block to display Staff_ID and salary of two highest paid
 -- staffs using cursors
@@ -127,5 +125,4 @@ DO $$
       EXIT WHEN NOT FOUND;
       RAISE NOTICE 'StaffID: %, Salary: %', rec.staffid, rec.salary;
     END LOOP;
-  END;
-$$
+END $$;
