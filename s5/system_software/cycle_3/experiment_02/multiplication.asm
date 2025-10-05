@@ -1,0 +1,20 @@
+ASSUME CS:CODE, DS:DATA
+DATA SEGMENT
+  num1 DW 1234H
+  num2 DW 5678H
+  prodL DW ?
+  prodH DW ?
+DATA ENDS
+CODE SEGMENT
+  START:
+    MOV AX, DATA
+    MOV DS, AX
+    XOR AX, AX
+    MOV AX, num1
+    MUL num2
+    MOV prodL, AX
+    MOV prodH, DX
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+END START

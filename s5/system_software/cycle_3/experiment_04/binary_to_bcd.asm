@@ -1,0 +1,27 @@
+ASSUME CS:CODE, DS:DATA
+DATA SEGMENT
+  binary DB 29
+  bcd DB 2 DUP(0)
+DATA ENDS
+CODE SEGMENT
+  START:
+    MOV AX, DATA
+    MOV DS, AX
+    XOR AX, AX
+    MOV AL, binary
+    MOV BX, 10
+    LEA SI, bcd+1
+
+  CONVERT:
+    XOR AH, AH
+    DIV BX
+    MOV [SI], AH
+    DEC SI
+    CMP AL, 0
+    JNZ CONVERT
+
+  CLEANUP:
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+END START

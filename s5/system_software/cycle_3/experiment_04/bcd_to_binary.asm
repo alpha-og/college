@@ -1,0 +1,28 @@
+ASSUME CS:CODE, DS:DATA
+DATA SEGMENT
+  bcd DB 02H, 09H
+  count DB 02H
+  binary DB 
+DATA ENDS
+CODE SEGMENT
+  START:
+    MOV AX, DATA
+    MOV DS, AX
+    XOR AX, AX
+    MOV CL, count
+    MOV BX, 10
+    LEA SI, bcd
+
+  CONVERT:
+    MUL BX
+    ADD AL, [SI]
+    INC SI
+    DEC CL
+    JNZ CONVERT
+
+  CLEANUP:
+    MOV binary, AL
+    MOV AH, 4CH
+    INT 21H
+CODE ENDS
+END START
