@@ -65,10 +65,67 @@ FOR EACH ROW
 
 -- 1. Write a PL/SQL block to display the details of Staff living in a particular
 -- city
-
+DO $$
+  DECLARE
+    city TEXT := 'Trivandrum';
+    rec RECORD;
+  BEGIN
+    RAISE NOTICE 'Staff living in %', city;
+    FOR rec IN
+      SELECT * FROM staff
+      WHERE stfcity = city
+    LOOP
+      RAISE NOTICE 'ID: %, Name: %, Salary: %, City: %', rec.staffid, rec.stffirstname || ' ' || rec.stflastname, rec.salary, rec.stfcity;
+    END LOOP
+  END;
+$$
 
 -- 2. Using parameterized cursors list the name of staff who work in the same
 -- department in which ‘xyz’ works
+DO $$
+  DECLARE
+    dept TEXT ;
+    rec RECORD;
+  BEGIN
+    SELECT c.departmentid INTO dept
+    FROM staff s
+    JOIN faculty_subjects fs ON s.staffid = fs.staffid
+    JOIN subjects sub ON fs.subjectid = sub.subjectid
+    JOIN categories c ON sub.categoryid = c.categoryid
+    WHERE s.stffirstname = 'Arathi';
+
+    RAISE NOTICE 'Staff in the same department as Arathi';
+
+    FOR rec IN 
+      SELECT s.stffirstname, s.stflastname
+      FROM staff s
+      JOIN faculty_subjects fs ON s.staffid = fs.staffid
+      JOIN subjects sub ON fs.subjectid = sub.subjectid
+      JOIN categories c ON sub.categoryid = c.categoryid
+      WHERE c.departmentid = dept AND s.staffirstname <> 'Arathi'
+    LOOP
+      RAISE NOTICE '% %', rec.stffirstname, rec.stflastname;
+    END LOOP;
+  END;
+$$
+
 -- 3. Write a PL/SQL block to display Staff_ID and salary of two highest paid
 -- staffs using cursors
 
+DO $$
+  DECLARE
+    rec RECORD;
+    stf_cursor CURSOR FOR
+      SELECT staffid, salary
+      FROM staff
+      ORDER BY salary DESC
+      LIMIT 2;
+  BEGIN
+    OPEN stf_cursor;
+    LOOP
+      FETCH stf_cursor INTO rec;
+      EXIT WHEN NOT FOUND;
+      RAISE NOTICE 'StaffID: %, Salary: %', rec.staffid, rec.salary;
+    END LOOP;
+  END;
+$$
