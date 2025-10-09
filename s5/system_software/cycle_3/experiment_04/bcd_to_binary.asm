@@ -2,7 +2,7 @@ ASSUME CS:CODE, DS:DATA
 DATA SEGMENT
   bcd DB 02H, 09H
   count DB 02H
-  binary DB 
+  binary DB 00H
 DATA ENDS
 CODE SEGMENT
   START:
