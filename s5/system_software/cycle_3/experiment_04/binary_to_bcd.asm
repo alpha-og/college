@@ -9,12 +9,12 @@ CODE SEGMENT
     MOV DS, AX
     XOR AX, AX
     MOV AL, binary
-    MOV BX, 10
+    MOV BL, 10
     LEA SI, bcd+1
 
   CONVERT:
     XOR AH, AH
-    DIV BX
+    DIV BL
     MOV [SI], AH
     DEC SI
     CMP AL, 0
