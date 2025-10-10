@@ -1,7 +1,7 @@
 ASSUME CS:CODE, DS:DATA
 DATA SEGMENT
   str DB 'heLlO worlD$'
-  vowels DB 'aeiouAEIOU'
+  vowels DB 'aeiouAEIOU$'
   count DB ?
 DATA ENDS
 CODE SEGMENT
@@ -26,7 +26,7 @@ CODE SEGMENT
     JE COUNT
     CMP AL, BL
     JE INC_COUNT
-    INC [DI]
+    INC DI
     JMP IS_VOWEL
   
   INC_COUNT:

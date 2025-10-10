@@ -13,15 +13,21 @@ CODE SEGMENT
     MOV AL, [SI]
     CMP AL, '$'
     JE DISPLAY
-    CMP AL,5AH
-    JB TO_LOWER
-  
+    CMP AL,'A'
+    JB CONTINUE
+    CMP AL, 'Z'
+    JA CONTINUE 
+    JMP TO_LOWER
+
   TO_LOWER:
     ADD AL, 20H
     MOV [SI], AL
+    JMP CONTINUE 
+
+  CONTINUE:
     INC SI
     JMP CONVERT
-
+  
   DISPLAY:
     LEA DX, str
     MOV AH, 09H
