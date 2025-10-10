@@ -17,25 +17,25 @@ CODE SEGMENT
     MOV AL, [SI]
     MOV BL, [DI]
     CMP AL, BL
-    JNE NOT_SAME
+    JNE STR_NOT_SAME
     CMP AL, '$'
-    JE SAME
+    JE STR_SAME
     INC SI
     INC DI
     JMP COMPARE
 
-  NOT_SAME:
+  STR_NOT_SAME:
     LEA DX, notSame
     JMP CLEANUP
 
-  SAME:
+  STR_SAME:
     LEA DX, same
     JMP CLEANUP
 
   CLEANUP:
     MOV AH, 09H
     INT 21H
-    MOV AH 4CH
+    MOV AH, 4CH
     INT 21H
 CODE ENDS
 END START

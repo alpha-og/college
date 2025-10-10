@@ -12,7 +12,7 @@ CODE SEGMENT
     LEA SI, str
     XOR CL, CL
 
-  COUNT:
+  S_COUNT:
     MOV AL, [SI]
     CMP AL, '$'
     JE CLEANUP 
@@ -31,7 +31,7 @@ CODE SEGMENT
   
   INC_COUNT:
     INC CL
-    JMP COUNT
+    JMP S_COUNT
 
   CLEANUP:
     MOV count, CL

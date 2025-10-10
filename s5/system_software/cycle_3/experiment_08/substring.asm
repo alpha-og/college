@@ -20,21 +20,21 @@ CODE SEGMENT
     MOV DL, [DI]
     INC DI
     CMP DL, "$"
-    JE FOUND
+    JE STR_FOUND
     MOV AL, [SI]
     INC SI
     CMP AL, "$"
-    JE NOT_FOUND
+    JE STR_NOT_FOUND
     CMP AL, DL
     JE CHECK
     INC BX
     JMP FIND
 
-  NOT_FOUND:
+  STR_NOT_FOUND:
     LEA DX, notFound
     JMP CLEANUP
 
-  FOUND:
+  STR_FOUND:
     LEA DX, found
     JMP CLEANUP
 
