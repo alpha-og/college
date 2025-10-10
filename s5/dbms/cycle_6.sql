@@ -9,12 +9,12 @@ CREATE OR REPLACE FUNCTION archive_student_schedules()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO student_schedules_archive
-  SELECT *;
+  VALUES (OLD.*);
   RETURN OLD;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER archive_student_schedules_trigger
+CREATE OR REPLACE TRIGGER archive_student_schedules_trigger
 BEFORE DELETE
 ON student_schedules
 FOR EACH ROW
