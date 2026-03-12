@@ -26,7 +26,7 @@
       else                                                                     \
         continue;                                                              \
     }                                                                          \
-  } while (0)
+  } while (0);
 
 int get_cmd(char *);
 
@@ -81,10 +81,13 @@ int main() {
               !FATAL);
 
         fprintf(stdout, "(system)>> Sending file %s\n", cmd_arg);
+        char cmd_fixed[BUFFER_SIZE] = {0};
+        char arg_fixed[BUFFER_SIZE] = {0};
+        strncpy(cmd_fixed, cmd, BUFFER_SIZE - 1);
+        strncpy(arg_fixed, cmd_arg, BUFFER_SIZE - 1);
 
-        send(sock_fd, cmd, strlen(cmd) + 1, 0); // send command to server
-        send(sock_fd, cmd_arg, strlen(cmd_arg) + 1,
-             0); // send filename to server
+        send(sock_fd, cmd_fixed, BUFFER_SIZE, 0);
+        send(sock_fd, arg_fixed, BUFFER_SIZE, 0);
 
         // determine filesize
         fseek(fptr, 0, SEEK_END);
@@ -109,11 +112,14 @@ int main() {
         break;
       case CMD_GET:
         CHECK(cmd_arg == NULL, "GET requires a file name", !FATAL);
+        char cmd_frame[BUFFER_SIZE] = {0};
+        char arg_frame[BUFFER_SIZE] = {0};
+        strncpy(cmd_frame, cmd, BUFFER_SIZE - 1);
+        strncpy(arg_frame, cmd_arg, BUFFER_SIZE - 1);
 
         fprintf(stdout, "(system)>> Fetching file %s\n", cmd_arg);
-        send(sock_fd, cmd, strlen(cmd) + 1, 0); // send command to server
-        send(sock_fd, cmd_arg, strlen(cmd_arg) + 1,
-             0); // send filename to server
+        send(sock_fd, cmd_frame, BUFFER_SIZE, 0);
+        send(sock_fd, arg_frame, BUFFER_SIZE, 0);
 
         // receive response status
         uint32_t status_net;
@@ -134,10 +140,14 @@ int main() {
                 "Failed to receive bytes from server", !FATAL);
           uint32_t filesize = ntohl(filesize_net);
 
-          CHECK((fptr = fopen(cmd_arg, "wb")) == NULL,
+          char file_path[BUFFER_SIZE] = {'\0'};
+          snprintf(file_path, sizeof(file_path), "%s/%s", "client_store",
+                   cmd_arg);
+
+          CHECK((fptr = fopen(file_path, "wb")) == NULL,
                 "Failed to open file to write contents", !FATAL);
 
-          fprintf(stdout, "(system)>> Downloading to %s\n", cmd_arg);
+          fprintf(stdout, "(system)>> Downloading to %s\n", file_path);
           uint32_t remaining = filesize;
           while (remaining) {
             size_t pending =
