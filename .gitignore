@@ -5,3 +5,8 @@
 
 .DS_Store
 S4/os_lab/cycle-1/p21/myadder
+s6/network_programming/tcp_client_server/client
+s6/network_programming/tcp_client_server/server
+s6/network_programming/udp_client_server/client
+s6/network_programming/udp_client_server/server
+s6/network_programming/ftp_client_server/client
