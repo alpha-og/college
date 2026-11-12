@@ -1,0 +1,126 @@
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_SIZE 32
+#define MAX_PRODUCTIONS 16
+#define MAX_PRODUCTION_LENGTH 16
+
+int add_item(char *set, char item);
+int first(char *set, char symbol);
+int follow(char *set, char symbol);
+void display_set(char *set, const char *msg);
+
+int productions_count;
+char productions[MAX_PRODUCTIONS][MAX_PRODUCTION_LENGTH];
+
+int main() {
+  FILE *p_file = fopen("input.txt", "r");
+
+  // initialize productions array
+  productions_count = 0;
+  for (int production_idx = 0; production_idx < MAX_PRODUCTIONS;
+       production_idx++) {
+    memset(productions[production_idx], '\0', MAX_PRODUCTION_LENGTH);
+  }
+
+  // initialize first set
+  char first_set[MAX_SIZE];
+  memset(first_set, '\0', MAX_SIZE);
+
+  // initialize follow set
+  char follow_set[MAX_SIZE];
+  memset(follow_set, '\0', MAX_SIZE);
+
+  // read productions
+  int production_idx = 0;
+  while ((production_idx < MAX_PRODUCTIONS) &&
+         (fgets(productions[production_idx], MAX_PRODUCTION_LENGTH, p_file) !=
+          NULL)) {
+    productions[production_idx][strcspn(productions[production_idx], "\n")] =
+        '\0';
+    production_idx++;
+  }
+  productions_count = production_idx;
+
+  first(first_set, 'E');
+  display_set(first_set, "First Set");
+  follow(follow_set, 'E');
+  display_set(follow_set, "FOllow Set");
+
+  return -1;
+}
+
+void display_set(char *set, const char *msg) {
+  fprintf(stdout, "%s: { ", msg);
+  int idx = 0;
+  while (idx < MAX_SIZE && set[idx] != '\0') {
+    fprintf(stdout, "%c, ", set[idx]);
+    idx++;
+  }
+  fprintf(stdout, "}\n");
+}
+
+int add_item(char *set, char item) {
+  int idx = 0;
+  while (idx < MAX_SIZE && set[idx] == -1) {
+    if (set[idx] == item)
+      return idx;
+    idx++;
+  }
+  if (idx == MAX_SIZE)
+    return -1;
+  set[idx] = item;
+  return idx;
+}
+
+int first(char *set, char symbol) {
+  if (!isupper(symbol))
+    return add_item(set, symbol);
+  int production_idx = 0;
+  printf("hi: %c\n", symbol);
+  while (production_idx < productions_count) {
+    char *production = productions[production_idx];
+    if (production[0] != symbol) {
+      production_idx++;
+      continue;
+    }
+    char rhs = production[3];
+    if (rhs == 'e') {
+      if (add_item(set, 'e') < 0)
+        return -1;
+      production_idx++;
+      continue;
+    }
+    printf("rhs: %c\n", rhs);
+    if (first(set, rhs) < 0)
+      return -1;
+    production_idx++;
+  }
+  return 0;
+}
+
+int follow(char *set, char symbol) {
+  int production_idx = 0;
+  while (production_idx < productions_count) {
+    char *production = productions[production_idx];
+    int idx = 3;
+    while (idx < MAX_PRODUCTION_LENGTH && production[idx] != '\0') {
+      if (production[idx] != symbol) {
+        idx++;
+        continue;
+      }
+      if (idx + 1 == MAX_PRODUCTION_LENGTH || production[idx + 1] == '\0') {
+        follow(set, production[0]);
+        break;
+      }
+      first(set, production[production_idx + 1]);
+      idx++;
+      continue;
+
+      idx++;
+    }
+    production_idx++;
+  }
+  return 0;
+}
